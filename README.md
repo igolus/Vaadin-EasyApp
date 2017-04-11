@@ -1,24 +1,95 @@
-# easyApp
+# Vaadin-EasyApp
 
-This is a Vaadin add-on project created with in.virit:vaadin-addon archetype.
-The project supports plain server side extensions and JavaScript extensions.
-There are stubbs for server side composition and JavaScript component. Delete the obsolete ones and continue.
+EasyApp is a tool for vaadin that will generate a UI based on the attributes defines in your components.
 
-## Development instructions 
+### Installation
 
-1. Import to your favourite IDE
-2. Run main method of the Server class to launch embedded web server that lists all your test UIs at http://localhost:9998
-3. Code and test
-  * create UI's for various use cases for your add-ons, see examples. These can also work as usage examples for your add-on users.
-  * create browser level and integration tests under src/test/java/
-  * Browser level tests are executed manually from IDE (JUnit case) or with Maven profile "browsertests" (mvn verify -Pbrowsertests). If you have a setup for solidly working Selenium driver(s), consider enabling that profile by default.
-4. Test also in real world projects, on good real integration test is to *create a separate demo project* using vaadin-archetype-application, build a snapshot release ("mvn install") of the add-on and use the snapshot build in it. Note, that you can save this demo project next to your add-on project and save it to same GIT(or some else SCM) repository, just keep them separated for perfect testing.
+Easy app requires maven to run.
 
-## Creating releases
+```sh
+$ cd Vaadin-EasyApp
+$ mvn install
+```
+# Usage
 
-1. Push your changes to e.g. Github 
-2. Update pom.xml to contain proper SCM coordinates (first time only)
-3. Use Maven release plugin (mvn release:prepare; mvn release:perform)
-4. Upload the ZIP file generated to target/checkout/target directory to https://vaadin.com/directory service (and/or optionally publish your add-on to Maven central)
+ - Extends the vaadin UI as usual 
+ - Create a EasyAppMainView component giving the package where your views are defined ex : *org.vaadin.easyApp.demo.view*
+ - Define the icon you want to display in the Top Bar (Optional)
 
-"# Vaadin-EasyApp" 
+```
+@Theme("mytheme")
+public class AddonDemoApplication extends UI {
+
+    protected void init(VaadinRequest vaadinRequest) {
+        final VerticalLayout layout = new VerticalLayout();
+        layout.setSizeFull();
+        
+        EasyAppMainView easyAppMainView = new EasyAppMainView("org.vaadin.easyApp.demo.view") {
+
+			@Override
+			protected Image getTopBarImage() {
+				Image image = new Image(null, new ThemeResource("favicon.ico"));
+				image.setWidth(50, Unit.PIXELS);
+				image.setHeight(50, Unit.PIXELS);
+				return image;
+			}
+        };
+		layout.addComponents(easyAppMainView);
+        
+		easyAppMainView.getTopBar().setStyleName("topBannerBackGround");
+        
+        setContent(layout);
+    }
+
+    @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
+    @VaadinServletConfiguration(ui = AddonDemoApplication.class, productionMode = false)
+    public static class MyUIServlet extends VaadinServlet {
+    }
+}
+```
+
+ - Create your components.
+
+![enter image description here](https://github.com/igolus/Vaadin-EasyApp/blob/master/docimg/sample1.png?raw=true)
+ 
+ - Note that all your components should implements com.vaadin.navigator.View
+```
+    @ContentView(sortingOrder=1, viewName = "Panel", icon = "ANDROID", rootViewParent = HomeRoot.class, homeView = true)
+@SuppressWarnings("serial")
+public class ViewOne extends VerticalLayout implements View {
+
+    public ViewOne() {
+        setSpacing(true);
+        
+        Panel panel = new Panel("Astronomer Panel");
+        panel.addStyleName("mypanelexample");
+        panel.setSizeUndefined(); // Shrink to fit content
+        AbstractOrderedLayout layout;
+		
+
+        // Create the content
+        FormLayout content = new FormLayout();
+        content.addStyleName("mypanelcontent");
+        content.addComponent(new TextField("Participant"));
+        content.addComponent(new TextField("Organization"));
+        content.setSizeUndefined(); // Shrink to fit
+        content.setMargin(true);
+        panel.setContent(content);
+        panel.setSizeFull();
+        addComponent(panel);
+
+    }
+
+	public void enter(ViewChangeEvent event) {
+		Notification.show("Entering view 1");
+	}
+
+}
+```
+ 
+TO BE CONTINUED ...
+
+
+# License
+Apache 2.0
+
