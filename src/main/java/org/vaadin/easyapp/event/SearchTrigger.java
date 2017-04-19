@@ -1,4 +1,4 @@
-package org.vaadin.easyapp.util;
+package org.vaadin.easyapp.event;
 
 /**
  * Used when search is triggered

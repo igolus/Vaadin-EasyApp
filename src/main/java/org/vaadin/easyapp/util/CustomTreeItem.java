@@ -3,11 +3,34 @@ package org.vaadin.easyapp.util;
 public class CustomTreeItem {
 	private String label;
 	private Class<?> targetClass;
+	private CustomTreeItem parent;
+	private String rootViewName = "Undefined";
+	private String rootClassName;
 	
-	public CustomTreeItem(String label, Class<?> targetClass) {
+
+	public String getRootClassName() {
+		return rootClassName;
+	}
+
+	public String getRootViewName() {
+		return rootViewName;
+	}
+
+	public CustomTreeItem getParent() {
+		return parent;
+	}
+
+	public void setParent(CustomTreeItem parent) {
+		this.parent = parent;
+	}
+
+	public CustomTreeItem(String label, Class<?> targetClass, String rootViewName, String rootClassName) {
 		super();
 		this.label = label;
 		this.targetClass = targetClass;
+		this.rootViewName = rootViewName;
+		this.rootClassName = rootClassName;
+		
 	}
 
 	public String getLabel() {

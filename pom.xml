@@ -26,6 +26,7 @@
 		<github.account>igolus</github.account>
 		<github.project>Vaadin-EasyApp</github.project>
 		<javadoc.version>2.10.4</javadoc.version>
+		<activelink.version>7.3.1</activelink.version>
 	</properties>
 	<scm>
 		<url>https://github.com/${github.account}/${github.project}</url>
@@ -44,6 +45,12 @@
 		</license>
 	</licenses>
 	<dependencies>
+
+		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>activelink</artifactId>
+			<version>${activelink.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>

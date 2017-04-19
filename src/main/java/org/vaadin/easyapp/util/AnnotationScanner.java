@@ -2,15 +2,14 @@ package org.vaadin.easyapp.util;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.reflections.Reflections;
+import org.vaadin.easyapp.event.NavigationTrigger;
 import org.vaadin.easyapp.ui.DefaultView;
 import org.vaadin.easyapp.util.annotations.ContentView;
 import org.vaadin.easyapp.util.annotations.RootView;
@@ -22,6 +21,11 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Label;
 
 /**
  * Class used to look in package to scan to build the navigation
@@ -30,23 +34,22 @@ import com.vaadin.ui.Tree;
  */
 public class AnnotationScanner {
 
-	private Map<String, Item> customTreeItemByClassName = new LinkedHashMap<>();
+	private Map<String, CustomTreeItem> customTreeItemByClassName = new LinkedHashMap<>();
+	private Navigator navigator;
+	private ArrayList<NavigationTrigger> navigationTriggers;
 
-	public AnnotationScanner(Navigator navigator, List<String> packageToScan) throws InstantiationException, IllegalAccessException {
+	public AnnotationScanner(Navigator navigator, List<String> packageToScan, ArrayList<NavigationTrigger> navigationTriggers, String buttonLinkStyle) 
+			throws InstantiationException, IllegalAccessException {
 		super();
-		init(navigator, packageToScan);
-	}
-
-	/**
-	 * To protect bad instanciate
-	 */
-	private AnnotationScanner() {
+		this.navigationTriggers = navigationTriggers;
+		this.navigator = navigator;
+		this.buttonLinkStyle = buttonLinkStyle;
+		init(packageToScan);
 	}
 
 	private Map<String, TreeWithIcon> treeMap = new LinkedHashMap<>();
 	private Map<String, View> viewMap = new LinkedHashMap();
-
-
+	private String buttonLinkStyle;
 
 	public Map<String, TreeWithIcon> getTreeMap() {
 		return treeMap;
@@ -57,14 +60,10 @@ public class AnnotationScanner {
 		return viewMap;
 	}
 
-	public void init(Navigator navigator, List<String> packagesToScan)
+	public void init(List<String> packagesToScan)
 			throws InstantiationException, IllegalAccessException {
-
 		for (String packageToScan : packagesToScan) {
-
-
 			Reflections reflections = new Reflections(packageToScan);
-
 			List<RootView> rootViews = new ArrayList<>();
 
 			Map<RootView, String> classNameByRootView = new LinkedHashMap<>();
@@ -85,6 +84,8 @@ public class AnnotationScanner {
 			rootViews.sort((r1, r2) -> r1.sortingOrder() - r2.sortingOrder());
 
 			Map<String, TreeWithIcon> treeByClassName = new LinkedHashMap<>();
+			Map<String, String> rootViewNameByClassName = new LinkedHashMap<>();
+			
 			//build the treeMap
 			for (RootView rootView : rootViews) {
 				if (treeMap.get(rootView.viewName()) == null) {
@@ -92,11 +93,17 @@ public class AnnotationScanner {
 					TreeWithIcon treeWithIcon = new TreeWithIcon(tree, rootView.icon());
 					treeMap.put(rootView.viewName(), treeWithIcon);
 					treeByClassName.put(classNameByRootView.get(rootView), treeWithIcon);
+					rootViewNameByClassName.put(classNameByRootView.get(rootView), rootView.viewName());
 					tree.addItemClickListener(new ItemClickListener() {
 						@Override
 						public void itemClick(ItemClickEvent event) {
 							//navigate the the selected view
-							navigator.navigateTo(((CustomTreeItem)event.getItemId()).getTargetClass().toString());
+							Class<?> targetClass = ((CustomTreeItem)event.getItemId()).getTargetClass();
+							navigator.navigateTo( targetClass.toString());
+							updateBreadCrumbLinksList();
+							for (NavigationTrigger navigationTrigger : navigationTriggers) {
+								navigationTrigger.enter(targetClass);
+							}
 						}
 					});
 				}
@@ -124,7 +131,7 @@ public class AnnotationScanner {
 			//sort it
 			ContentViewWithTargetClasses.sort((p1, p2) -> p1.getContentView().sortingOrder() - p2.getContentView().sortingOrder());
 
-			Map<String, CustomTreeItem> customTreeItemByClassName = new HashMap<>();
+			customTreeItemByClassName = new HashMap<>();
 
 			boolean hasHomeView = false;
 			//create the view with order
@@ -141,9 +148,11 @@ public class AnnotationScanner {
 
 				navigator.addView(targetClass.toString(), (View) view);
 				TreeWithIcon tree = treeByClassName.get(contentView.rootViewParent().toString());
+				String rootViewName = rootViewNameByClassName.get(contentView.rootViewParent().toString());
 				if (tree != null) {
 
-					CustomTreeItem customTreeItem = new CustomTreeItem(contentView.viewName(), targetClass);
+					CustomTreeItem customTreeItem = new CustomTreeItem(contentView.viewName(), targetClass, rootViewName, 
+							contentView.rootViewParent().toString());
 					customTreeItemByClassName.put(targetClass.toString(), customTreeItem);
 
 					Item treeItem = tree.getTree().addItem(customTreeItem);
@@ -166,6 +175,7 @@ public class AnnotationScanner {
 						CustomTreeItem parentCustomTreeItem = customTreeItemByClassName.get(contentView.componentParent().toString());
 						tree.getTree().setChildrenAllowed(parentCustomTreeItem, true);
 						tree.getTree().setParent(customTreeItem, parentCustomTreeItem);
+						customTreeItem.setParent(parentCustomTreeItem);
 					}
 					viewMap.put(targetClass.toString(), (View) view);
 				}
@@ -178,4 +188,62 @@ public class AnnotationScanner {
 
 		}
 	}
+	
+	/**
+	 * Navigate to a view
+	 * @param clazz
+	 */
+	public void navigateTo(Class<?> clazz) {
+		navigator.navigateTo(clazz.toString());
+	}
+	
+	/**
+	 * Build the list of links
+	 * @param style
+	 * @return
+	 */
+	public void updateBreadCrumbLinksList() {
+		breadCrumbLinkList.clear();
+		View currentView = navigator.getCurrentView();
+		CustomTreeItem pathCustomTreeItem = customTreeItemByClassName.get(currentView.getClass().toString());
+		
+		breadCrumbLinkList.add(buildLinkButton(pathCustomTreeItem));
+		
+		while (pathCustomTreeItem.getParent() != null) {
+			pathCustomTreeItem = pathCustomTreeItem.getParent();
+			breadCrumbLinkList.add(buildLinkButton(pathCustomTreeItem));
+		}
+		
+		Label rootLabel = new Label(pathCustomTreeItem.getRootViewName());
+		breadCrumbLinkList.add(rootLabel);
+		
+		//invert the order
+		Collections.reverse(breadCrumbLinkList);
+	}
+
+
+	private Button buildLinkButton(CustomTreeItem customTreeItem) {
+		Button link = new Button(customTreeItem.toString());
+		if (buttonLinkStyle != null) {
+			link.setStyleName(buttonLinkStyle);
+		}
+		link.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				treeMap.get(customTreeItem.getRootViewName()).getTree().select(customTreeItem);
+			}
+		});
+		return link;
+	}
+	
+	
+	
+	private List<Component> breadCrumbLinkList = new ArrayList<>();
+
+	public List<Component> getBreadCrumbLinkList() {
+		return breadCrumbLinkList;
+	} 
+	
+	
 }
