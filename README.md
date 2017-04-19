@@ -143,6 +143,8 @@ Create a view that will be displayed in the navigator.
  - **rootViewParent** a link to a RootView tagged class indicate in which accordion it should be displayed 
  - **componentParent**  define the parent component.
 
+#Demo web app
+Check [here](https://github.com/igolus/easyApp-demo)
+
 # License
 Apache 2.0
-

@@ -3,10 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin</groupId>
 	<artifactId>easyApp</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0-beta</version>
 	<name>easyApp</name>
 	<organization>
-		<name>Vaadin Community</name>
+		<name>Guillaume Rousseau</name>
 	</organization>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -18,6 +18,7 @@
 		<reflections.version>0.9.9-RC1</reflections.version>
 		<!-- ZIP Manifest fields -->
 		<Implementation-Version>1.0-BETA</Implementation-Version>
+		<License-title>Apache License 2.0</License-title>
 		<!-- Must not change this because of the Directory -->
 		<Implementation-Title>Vaadin_EasyApp</Implementation-Title>
 		<Implementation-Vendor>Guillaume Rousseau</Implementation-Vendor>
@@ -111,6 +112,7 @@
 							<Implementation-Version>${pom.version}</Implementation-Version>
 							<Implementation-Title>${project.name}</Implementation-Title>
 							<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+							<License-title>${Vaadin-License-Title}</License-title>
 							<Vaadin-Package-Version>1</Vaadin-Package-Version>
 						</manifestEntries>
 					</archive>
@@ -140,7 +142,7 @@
 	<url>https://github.com/${github.account}/${github.project}</url>
 	<description>EasyApp builds a ready to use applicattion container.
 
-- Create you views in a deicated package
+- Create you views in a dedicated package
 - Decorate it with annotation.
 
 Do not care about the UI layout, easyApp will do for you.
