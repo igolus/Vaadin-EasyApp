@@ -101,6 +101,9 @@ public class EasyAppBuilder {
 		return this;
 	}
 	
-	
+	public EasyAppBuilder withToolBar() {
+		mainView.setToolbar(true);
+		return this;
+	}
 
 }

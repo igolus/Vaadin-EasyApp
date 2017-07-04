@@ -12,16 +12,20 @@ import org.vaadin.easyapp.event.LoginTrigger;
 import org.vaadin.easyapp.event.LogoutTrigger;
 import org.vaadin.easyapp.event.NavigationTrigger;
 import org.vaadin.easyapp.event.SearchTrigger;
+import org.vaadin.easyapp.ui.ToolBar;
 import org.vaadin.easyapp.util.AnnotationScanner;
 import org.vaadin.easyapp.util.TreeWithIcon;
 import org.vaadin.easyapp.util.UserPasswordPopupView;
+import org.vaadin.easyapp.util.VisitableView;
 import org.vaadin.easyapp.util.annotations.RootView;
 
 import com.vaadin.navigator.Navigator;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
@@ -30,6 +34,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Image;
@@ -191,6 +196,20 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 	private HorizontalLayout toolsLayout;
 
+	private boolean toolBarb;
+
+	private ToolBar toolBar;
+
+	private GridLayout gridBar;
+
+	public GridLayout getGridBar() {
+		return gridBar;
+	}
+
+	public ToolBar getToolBar() {
+		return toolBar;
+	}
+
 	public void setButtonLinkStyle(String buttonLinkStyle) {
 		this.buttonLinkStyle = buttonLinkStyle;
 	}
@@ -310,6 +329,8 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 		if (getNavigatorStyleName() != null) {
 			navigationPanel.setStyleName(getNavigatorStyleName());
 		}
+		
+		
 
 		downSplitPanel.setSecondComponent(mainArea);
 		downSplitPanel.setFirstComponent(navigationPanel);
@@ -319,12 +340,36 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 		setSecondComponent(downSplitPanel);
 		setFirstComponent(topBar);
-		setSplitPosition(55, Unit.PIXELS);
+		setSplitPosition(10, Unit.PIXELS);
 
 		setSizeFull();
 		setLocked(true);
 		
 		addNavigationTrigger( (clazz) -> resfreshBreabCrumb());
+		
+		if (getToolBar() != null) {
+			manageToolBar();
+		}
+			
+		
+	}
+
+	private void manageToolBar() {
+		
+		getNavigator().addViewChangeListener(new ViewChangeListener() {
+
+			@Override
+			public boolean beforeViewChange(ViewChangeEvent event) {
+				// TODO Auto-generated method stub
+				return true;
+			}
+
+			@Override
+			public void afterViewChange(ViewChangeEvent event) {
+				if (event.getNewView() instanceof VisitableView) {
+					getToolBar().inspect((VisitableView) event.getNewView());
+				}
+			}});
 	}
 
 
@@ -366,6 +411,7 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 	}
 
 	private Component buildTopBar() {
+		
 		HorizontalLayout horizontalLayoutTopBar = new HorizontalLayout();
 		horizontalLayoutTopBar.setSizeFull();
 		horizontalLayoutTopBar.setStyleName("topBannerBackGround");
@@ -410,6 +456,18 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 		horizontalLayoutTopBar.addComponent(toolsLayout);
 		horizontalLayoutTopBar.setComponentAlignment(toolsLayout,  Alignment.MIDDLE_RIGHT);
+		
+		if (toolBarb) {
+			VerticalLayout verticalLayout= new VerticalLayout();
+			verticalLayout.addComponent(horizontalLayoutTopBar);
+			
+			toolBar = new ToolBar(gridBar);
+			verticalLayout.addComponent(toolBar);
+			verticalLayout.setExpandRatio(horizontalLayoutTopBar, 0.7f);
+			verticalLayout.setExpandRatio(toolBar, 0.3f);
+			return verticalLayout;
+		}
+		
 		return horizontalLayoutTopBar;
 	}
 
@@ -596,5 +654,10 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 	public void setLogoutTrigger(LogoutTrigger logoutTrigger) {
 		this.logoutTrigger = logoutTrigger;
+	}
+
+	public void setToolbar(boolean toolBar) {
+		this.toolBarb = toolBar;
+		
 	}
 }
