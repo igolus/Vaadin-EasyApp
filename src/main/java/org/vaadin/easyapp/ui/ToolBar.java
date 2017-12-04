@@ -3,6 +3,7 @@ package org.vaadin.easyapp.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.vaadin.easyapp.util.ButtonDescriptor;
 import org.vaadin.easyapp.util.VisitableView;
 
 import com.vaadin.server.FontAwesome;
@@ -26,25 +27,38 @@ public class ToolBar extends HorizontalLayout {
 	}
 	
 	//add a button
-	public void addButton(String name, String tooltip, Resource imageResource, String key) {
-		ButtonWithKey button = new ButtonWithKey(key);
-		button.setCaption(name);
-		button.setIcon(imageResource);
-		addComponent(button);
+	private ButtonWithKey addButton(ButtonDescriptor buttonDescriptor) {
+		ButtonWithKey button = new ButtonWithKey(buttonDescriptor.getKey());
+		button.setCaption(buttonDescriptor.getName());
+		button.setIcon(buttonDescriptor.getImageResource());
+		//addComponent(button);
 		listButtons.add(button);
+		button.setEnabled(false);
+		return button;
 	}
 	
 	public void inspect(VisitableView visitableView) {
 		removeAllComponents();
+		if (visitableView.getButtons() != null) {
+			for (ButtonDescriptor buttonDescriptor : visitableView.getButtons()) {
+				ButtonWithKey buttonWithKey = addButton(buttonDescriptor);
+				buttonWithKey.getListeners(ClickEvent.class).clear();
+				ClickListener clickListener = visitableView.getClickListener(buttonWithKey.getKey());
+				if (clickListener != null) {
+					addComponent(buttonWithKey);
+					buttonWithKey.addClickListener(clickListener);
+				}
+			}
+		}
+	}
+	
+	public void checkClickable (VisitableView visitableView) {
 		for (ButtonWithKey buttonWithKey : listButtons) {
-			buttonWithKey.getListeners(ClickEvent.class).clear();
-			ClickListener clickListener = visitableView.getClickListener(buttonWithKey.getKey());
-			if (clickListener != null) {
-				addComponent(buttonWithKey);
-				//gridBar.setComponentAlignment(this, Alignment.BOTTOM_LEFT);
-				//setComponentAlignment(buttonWithKey, Alignment.BOTTOM_LEFT);
-				buttonWithKey.addClickListener(clickListener);
-				
+			if (visitableView.isClickable(buttonWithKey.getKey())) {
+				buttonWithKey.setEnabled(true);
+			}
+			else {
+				buttonWithKey.setEnabled(false);
 			}
 		}
 	}

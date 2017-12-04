@@ -116,8 +116,8 @@ public class AnnotationScanner {
 			//first iteration to order items
 			for (Class<?> classTarget : annotatedContentView) {
 				//inteanciate the view
-				Object view = classTarget.newInstance();
-				if (view instanceof View) {
+				//Object view = classTarget.newInstance();
+				if (View.class.isAssignableFrom(classTarget)) {
 					Annotation[] annotations = classTarget.getDeclaredAnnotations();
 					for (Annotation annotation : annotations) {
 						if (annotation instanceof ContentView) {
