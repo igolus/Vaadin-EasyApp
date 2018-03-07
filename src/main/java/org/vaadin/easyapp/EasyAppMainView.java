@@ -19,6 +19,7 @@ import org.vaadin.easyapp.util.UserPasswordPopupView;
 import org.vaadin.easyapp.util.VisitableView;
 import org.vaadin.easyapp.util.annotations.RootView;
 
+import com.vaadin.data.Binder;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewDisplay;
@@ -406,7 +407,7 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 		try {
 			scanner = new AnnotationScanner(getNavigator(), packagesToScan, navigationTriggers, buttonLinkStyle);
 		} catch (InstantiationException | IllegalAccessException e) {
-			logger.error("Unable to create the AnnotationScanner");
+			logger.error("Unable to create the AnnotationScanner", e);
 		}
 	}
 
@@ -502,17 +503,20 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 		TextField user = new TextField(loggingUserText);
 		user.setWidth("300px");
-		user.setRequired(true);
-		user.setInputPrompt(loggingUserPrompt);
+		Binder binder = new Binder<>();
+		binder.forField(user).asRequired();
+		//binder.
+		//user.setRequired(true);
+		//user.setInputPrompt(loggingUserPrompt);
 
-		user.setInvalidAllowed(false);
 
 		// Create the password input field
 		PasswordField password = new PasswordField(loggingPassWordText);
 		password.setWidth("300px");
-		password.setRequired(true);
+		binder.forField(password).asRequired();
+		//password.setRequired(true);
 		password.setValue("");
-		password.setNullRepresentation("");
+		//password.setNullRepresentation("");
 
 
 		// Add both to a panel
@@ -583,7 +587,7 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 	private ComponentContainer buildNavigation(ComponentContainer target)  {
 		VerticalLayout parentLayout = new VerticalLayout();
 		navigationLayout = new VerticalLayout();
-		navigationLayout.setImmediate(true);
+		//navigationLayout.setImmediate(true);
 		setFirstComponent(navigationLayout);
 		ViewDisplay viewDisplay = new Navigator.ComponentContainerViewDisplay(target);
 		navigator = new Navigator(UI.getCurrent(), viewDisplay);

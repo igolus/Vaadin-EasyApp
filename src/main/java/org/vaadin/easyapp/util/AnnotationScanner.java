@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import org.reflections.Reflections;
 import org.vaadin.easyapp.event.NavigationTrigger;
@@ -14,18 +15,22 @@ import org.vaadin.easyapp.ui.DefaultView;
 import org.vaadin.easyapp.util.annotations.ContentView;
 import org.vaadin.easyapp.util.annotations.RootView;
 
-import com.vaadin.data.Item;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
-import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.View;
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Tree;
+import com.vaadin.ui.Tree.ItemClick;
+import com.vaadin.ui.Tree.ItemClickListener;
+
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.IconGenerator;
+import com.vaadin.ui.ItemCaptionGenerator;
+import com.vaadin.data.TreeData;
+import com.vaadin.data.provider.TreeDataProvider;
+import com.vaadin.navigator.Navigator;
+import com.vaadin.navigator.View;
+import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Tree;
 
 /**
  * Class used to look in package to scan to build the navigation
@@ -84,26 +89,37 @@ public class AnnotationScanner {
 			rootViews.sort((r1, r2) -> r1.sortingOrder() - r2.sortingOrder());
 
 			Map<String, TreeWithIcon> treeByClassName = new LinkedHashMap<>();
+			Map<TreeWithIcon, TreeDataProvider<CustomTreeItem>> treeDataByTree = new LinkedHashMap<>();
+			
 			Map<String, String> rootViewNameByClassName = new LinkedHashMap<>();
 			
 			//build the treeMap
+			
+			//TreeData<CustomTreeItem> treeData = new TreeData<>();
 			for (RootView rootView : rootViews) {
 				if (treeMap.get(rootView.viewName()) == null) {
-					Tree tree = new Tree();
+					Tree<CustomTreeItem> tree = new Tree<>();
 					TreeWithIcon treeWithIcon = new TreeWithIcon(tree, rootView.icon());
 					treeMap.put(rootView.viewName(), treeWithIcon);
 					treeByClassName.put(classNameByRootView.get(rootView), treeWithIcon);
+					
+					TreeData<CustomTreeItem> treeData = new TreeData<>();
+					TreeDataProvider<CustomTreeItem> dataProvider = new TreeDataProvider<>(treeData);
+					treeWithIcon.getTree().setDataProvider(dataProvider);
+					treeDataByTree.put(treeWithIcon, dataProvider);
+					
 					rootViewNameByClassName.put(classNameByRootView.get(rootView), rootView.viewName());
-					tree.addItemClickListener(new ItemClickListener() {
+					tree.addItemClickListener(new ItemClickListener<CustomTreeItem>() {
+
 						@Override
-						public void itemClick(ItemClickEvent event) {
-							//navigate the the selected view
-							Class<?> targetClass = ((CustomTreeItem)event.getItemId()).getTargetClass();
+						public void itemClick(ItemClick<CustomTreeItem> event) {
+							Class<?> targetClass = event.getItem().getTargetClass();
 							navigator.navigateTo( targetClass.toString());
 							updateBreadCrumbLinksList();
 							for (NavigationTrigger navigationTrigger : navigationTriggers) {
 								navigationTrigger.enter(targetClass);
 							}
+							
 						}
 					});
 				}
@@ -134,6 +150,9 @@ public class AnnotationScanner {
 			customTreeItemByClassName = new HashMap<>();
 
 			boolean hasHomeView = false;
+			
+			
+			
 			//create the view with order
 			for (ContentViewWithTargetClass contentViewWithTargetClass : ContentViewWithTargetClasses) {
 				ContentView contentView = contentViewWithTargetClass.getContentView();
@@ -150,33 +169,70 @@ public class AnnotationScanner {
 				TreeWithIcon tree = treeByClassName.get(contentView.rootViewParent().toString());
 				String rootViewName = rootViewNameByClassName.get(contentView.rootViewParent().toString());
 				if (tree != null) {
-
-					CustomTreeItem customTreeItem = new CustomTreeItem(contentView.viewName(), targetClass, rootViewName, 
+										
+					String  viewName = contentView.viewName();
+					if (!contentView.bundle().equals(ContentView.NOT_SET) && 
+							ResourceBundle.getBundle(contentView.bundle()) != null &&
+							ResourceBundle.getBundle(contentView.bundle()).containsKey(viewName)) {
+						viewName = ResourceBundle.getBundle(contentView.bundle()).getString(viewName);
+					}
+					
+					CustomTreeItem customTreeItem = new CustomTreeItem(viewName, targetClass, rootViewName, 
 							contentView.rootViewParent().toString());
 					customTreeItemByClassName.put(targetClass.toString(), customTreeItem);
-
-					Item treeItem = tree.getTree().addItem(customTreeItem);
-					tree.getTree().setChildrenAllowed(customTreeItem, false);
+					
+					TreeDataProvider<CustomTreeItem> treeDataProvider = treeDataByTree.get(tree);
+					CustomTreeItem parentCustomTreeItem = customTreeItemByClassName.get(contentView.componentParent().toString());
+					if (customTreeItemByClassName.get(contentView.componentParent().toString()) != null) {
+						treeDataProvider.getTreeData().addItem(customTreeItemByClassName.get(contentView.componentParent().toString()), customTreeItem);
+					}
+					else {
+						treeDataProvider.getTreeData().addItem(null, customTreeItem);
+					}
+					treeDataProvider.refreshAll();
+					
+//					Item treeItem = tree.getTree().addItem(customTreeItem);
+//					tree.getTree().setChildrenAllowed(customTreeItem, false);
 
 					Resource icon = org.vaadin.easyapp.EasyAppMainView.getIcon(contentView.icon());
 					if (icon != null) {
+						tree.getTree().setItemIconGenerator(new IconGenerator<CustomTreeItem>() {
 
-						tree.getTree().addContainerProperty("icon", Resource.class, null);
-						tree.getTree().addContainerProperty("caption", String.class, null);
+							@Override
+							public Resource apply(CustomTreeItem item) {
+								// TODO Auto-generated method stub
+								return icon;
+							}
+							
+						});
+						
+						
+						tree.getTree().setItemCaptionGenerator(new ItemCaptionGenerator<CustomTreeItem>() {
 
-						tree.getTree().setItemIconPropertyId("icon");
-						tree.getTree().setItemCaptionPropertyId("caption");
-
-						treeItem.getItemProperty("icon").setValue(icon);
-						treeItem.getItemProperty("caption").setValue(contentView.viewName());
+							@Override
+							public String apply(CustomTreeItem item) {
+								// TODO Auto-generated method stub
+								return contentView.viewName();
+							}
+						});
+						
+//						tree.getTree().addContainerProperty("icon", Resource.class, null);
+//						tree.getTree().addContainerProperty("caption", String.class, null);
+//
+//						tree.getTree().setItemIconPropertyId("icon");
+//						tree.getTree().setItemCaptionPropertyId("caption");
+//
+//						treeItem.getItemProperty("icon").setValue(icon);
+//						treeItem.getItemProperty("caption").setValue(contentView.viewName());
 					}
 
-					if (customTreeItemByClassName.get(contentView.componentParent().toString()) != null) {
-						CustomTreeItem parentCustomTreeItem = customTreeItemByClassName.get(contentView.componentParent().toString());
-						tree.getTree().setChildrenAllowed(parentCustomTreeItem, true);
-						tree.getTree().setParent(customTreeItem, parentCustomTreeItem);
-						customTreeItem.setParent(parentCustomTreeItem);
-					}
+//					if (customTreeItemByClassName.get(contentView.componentParent().toString()) != null) {
+//						CustomTreeItem parentCustomTreeItem = customTreeItemByClassName.get(contentView.componentParent().toString());
+//						treeData.addItem(parent, item)
+//						tree.getTree().setChildrenAllowed(parentCustomTreeItem, true);
+//						tree.getTree().setParent(customTreeItem, parentCustomTreeItem);
+//						customTreeItem.setParent(parentCustomTreeItem);
+//					}
 					viewMap.put(targetClass.toString(), (View) view);
 				}
 			}
