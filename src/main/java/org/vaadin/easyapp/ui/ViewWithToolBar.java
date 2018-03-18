@@ -23,8 +23,6 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 		this.innerComponent = innerComponent;
 		
 		ActionContainer actionContainer = innerComponent.buildActionContainer();
-		
-		
 		GridLayout gridLayout = null;
 		
 		List<ButtonWithCheck> listButtonWithCheck = actionContainer.getListButtonWithCheck();
@@ -62,12 +60,10 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 			addComponent(gridLayout);
 			
 		}
-		
+		innerComponent.setSizeFull();
 		addComponent(innerComponent);
 		setExpandRatio(innerComponent, 1.0f);
-		
-		
-		
+		innerComponent.refreshClickable();
 	}
 
 	public EasyAppLayout getInnerComponent() {
