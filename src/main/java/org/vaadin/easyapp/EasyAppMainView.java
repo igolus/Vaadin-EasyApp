@@ -14,18 +14,21 @@ import org.vaadin.easyapp.event.NavigationTrigger;
 import org.vaadin.easyapp.event.SearchTrigger;
 import org.vaadin.easyapp.ui.ToolBar;
 import org.vaadin.easyapp.util.AnnotationScanner;
+import org.vaadin.easyapp.util.MessageBuilder;
 import org.vaadin.easyapp.util.TreeWithIcon;
 import org.vaadin.easyapp.util.UserPasswordPopupView;
 import org.vaadin.easyapp.util.VisitableView;
 import org.vaadin.easyapp.util.annotations.RootView;
 
 import com.vaadin.data.Binder;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Accordion;
@@ -40,6 +43,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
@@ -52,7 +56,7 @@ import com.vaadin.ui.VerticalSplitPanel;
  * @author igolus
  *
  */
-public class EasyAppMainView extends VerticalSplitPanel  {
+public class EasyAppMainView extends VerticalLayout  {
 
 	private static final long serialVersionUID = 1L;
 
@@ -203,6 +207,16 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 	private GridLayout gridBar;
 
+	private boolean topBarb;
+
+	private Image navigationIcon;
+
+	private static UI targetUI;
+	
+	public static UI getTargetUI() {
+		return targetUI;
+	}
+
 	public GridLayout getGridBar() {
 		return gridBar;
 	}
@@ -313,7 +327,9 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 	/**
 	 * Buikd the UI
 	 */
-	void build() {
+	void build(UI targetUI) {
+		
+		this.targetUI = targetUI;
 		downSplitPanel = new HorizontalSplitPanel();
 
 		mainArea = buildMainArea();
@@ -321,57 +337,60 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 			mainArea.setStyleName(getMainViewStyle());
 		}
 
-		topBar = buildTopBar();
-		if (getTopBarStyleName() != null) {
-			topBar.setStyleName(getTopBarStyleName());
-		}
-
 		navigationPanel = buildNavigation(mainArea);
 		if (getNavigatorStyleName() != null) {
 			navigationPanel.setStyleName(getNavigatorStyleName());
 		}
-		
-		
 
 		downSplitPanel.setSecondComponent(mainArea);
 		downSplitPanel.setFirstComponent(navigationPanel);
 		downSplitPanel.setSplitPosition(300, Unit.PIXELS);
 		downSplitPanel.setSizeFull();
 		downSplitPanel.setLocked(true);
-
-		setSecondComponent(downSplitPanel);
-		setFirstComponent(topBar);
-		setSplitPosition(10, Unit.PIXELS);
-
-		setSizeFull();
-		setLocked(true);
 		
-		addNavigationTrigger( (clazz) -> resfreshBreabCrumb());
-		
-		if (getToolBar() != null) {
-			manageToolBar();
-		}
-			
-		
-	}
-
-	private void manageToolBar() {
-		
-		getNavigator().addViewChangeListener(new ViewChangeListener() {
-
-			@Override
-			public boolean beforeViewChange(ViewChangeEvent event) {
-				// TODO Auto-generated method stub
-				return true;
+		if (topBarb) {
+			topBar = buildTopBar();
+			if (getTopBarStyleName() != null) {
+				topBar.setStyleName(getTopBarStyleName());
 			}
+			VerticalSplitPanel mainComponent = new VerticalSplitPanel();
+			mainComponent.setSecondComponent(downSplitPanel);
+			mainComponent.setFirstComponent(topBar);
+			mainComponent.setSplitPosition(45, Unit.PIXELS);
+			mainComponent.setSizeFull();
+			mainComponent.setLocked(true);
+			addComponent(mainComponent);
+			addNavigationTrigger( (clazz) -> resfreshBreabCrumb());
 
-			@Override
-			public void afterViewChange(ViewChangeEvent event) {
-				if (event.getNewView() instanceof VisitableView) {
-					getToolBar().inspect((VisitableView) event.getNewView());
-				}
-			}});
+		}
+		else {
+			addComponent(downSplitPanel);
+		}
+		
+		setSizeFull();
+		
+//		if (getToolBar() != null) {
+//			manageToolBar();
+//		}
 	}
+
+//	private void manageToolBar() {
+//		
+//		getNavigator().addViewChangeListener(new ViewChangeListener() {
+//
+//			@Override
+//			public boolean beforeViewChange(ViewChangeEvent event) {
+//				// TODO Auto-generated method stub
+//				return true;
+//			}
+//
+//			@Override
+//			public void afterViewChange(ViewChangeEvent event) {
+//				if (event.getNewView() instanceof VisitableView) {
+//					getToolBar().inspect((VisitableView) event.getNewView());
+//				}
+//			}});
+//	}
 
 
 	private void resfreshBreabCrumb() {
@@ -415,6 +434,7 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 		
 		HorizontalLayout horizontalLayoutTopBar = new HorizontalLayout();
 		horizontalLayoutTopBar.setSizeFull();
+		//horizontalLayoutTopBar.setMargin(false);
 		horizontalLayoutTopBar.setStyleName("topBannerBackGround");
 		
 		HorizontalLayout lefthHorizontalBar = new HorizontalLayout();
@@ -505,19 +525,12 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 		user.setWidth("300px");
 		Binder binder = new Binder<>();
 		binder.forField(user).asRequired();
-		//binder.
-		//user.setRequired(true);
-		//user.setInputPrompt(loggingUserPrompt);
-
 
 		// Create the password input field
 		PasswordField password = new PasswordField(loggingPassWordText);
 		password.setWidth("300px");
 		binder.forField(password).asRequired();
-		//password.setRequired(true);
 		password.setValue("");
-		//password.setNullRepresentation("");
-
 
 		// Add both to a panel
 		VerticalLayout fields = new VerticalLayout(user, password, innerLoginButton);
@@ -580,27 +593,34 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 		VerticalLayout verticalLayout = new VerticalLayout();
 		verticalLayout.setSizeFull();
+		//verticalLayout.setMargin(false);
 		verticalLayout.setStyleName("mainBackGround");
 		return verticalLayout;
 	}
 
 	private ComponentContainer buildNavigation(ComponentContainer target)  {
 		VerticalLayout parentLayout = new VerticalLayout();
+		//GridLayout parentLayout = new GridLayout(1, 2);
+		
+		if (navigationIcon != null) {
+			parentLayout.addComponent(navigationIcon);
+			parentLayout.setComponentAlignment(navigationIcon,  Alignment.TOP_CENTER);
+		}
+		
+		
 		navigationLayout = new VerticalLayout();
-		//navigationLayout.setImmediate(true);
-		setFirstComponent(navigationLayout);
+		navigationLayout.setSizeFull();
 		ViewDisplay viewDisplay = new Navigator.ComponentContainerViewDisplay(target);
 		navigator = new Navigator(UI.getCurrent(), viewDisplay);
 		parentLayout.setSizeFull();
 		parentLayout.addComponent(navigationLayout);
+		parentLayout.setExpandRatio(navigationLayout, 1.0f);
 		buildAccordion();
 		return parentLayout;
 	}
 
 	public void buildAccordion() {
 		scanPackage();
-		buildBreadCrum();
-		
 		Map<String, TreeWithIcon> treeByAccordeonItem = scanner.getTreeMap();
 		accordion = new Accordion();
 		treeByAccordeonItem.forEach((name, treeWithIcon)-> {
@@ -612,16 +632,6 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 		navigationLayout.addComponent(accordion);
 	}
 
-	private void buildBreadCrum() {
-//		if (breadcrumb) {
-//			breadcrumbLabel = new Label("breadcrumb");
-//			if (breadcrumbLabelStyle != null) {
-//				breadcrumbLabel.setStyleName(breadcrumbLabelStyle);
-//			}
-//			scanner.getBreadCrumbLinksList(breadcrumbLabelStyle);
-//		}
-	}
-
 	/**
 	 * get the resource based on definitions
 	 * @param iconName
@@ -631,11 +641,11 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 	 */
 	public static Resource getIcon(String iconName) {
 		Resource icon = null;
-		Field fontAwasomeField;
+		Field vaadinIconField;
 		try {
-			fontAwasomeField = FontAwesome.class.getDeclaredField(iconName);
-			if (fontAwasomeField != null && !iconName.equals(RootView.NOT_SET)) {
-				icon = (Resource) fontAwasomeField.get(null);
+			vaadinIconField = VaadinIcons.class.getDeclaredField(iconName);
+			if (vaadinIconField != null && !iconName.equals(RootView.NOT_SET)) {
+				icon = (Resource) vaadinIconField.get(null);
 			}
 
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
@@ -663,5 +673,33 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 	public void setToolbar(boolean toolBar) {
 		this.toolBarb = toolBar;
 		
+	}
+
+	public void setTopBar(boolean topBar) {
+		this.topBarb = topBar;
+		
+	}
+
+	public void setNavigationIcon(Image navigationIcon) {
+		this.navigationIcon = navigationIcon;
+	}
+	
+	public static void executeInTargetUI(Runnable runnable) {
+		if (targetUI != null) {
+			targetUI.access(runnable);
+		} 
+		
+//		targetUI.access( ()  -> 
+//		{
+//			try {
+//				//VaadinSession.getCurrent().getLockInstance().lock();
+//				//Thread.sleep(200);
+//				runnable.run();
+//				//targetUI.push();
+//			} catch (InterruptedException e) {
+//				logger.error(MessageBuilder.getEasyAppMessage("Unable to get the view map"), e);
+//				Thread.currentThread().interrupt();
+//			}
+//		});
 	}
 }

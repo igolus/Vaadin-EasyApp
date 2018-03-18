@@ -8,6 +8,7 @@ import org.vaadin.easyapp.event.SearchTrigger;
 
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.UI;
 
 public class EasyAppBuilder {
 	
@@ -17,8 +18,8 @@ public class EasyAppBuilder {
 	
 	private EasyAppMainView mainView;
 	
-	public EasyAppMainView build() {
-		mainView.build();
+	public EasyAppMainView build(UI targetUI) {
+		mainView.build(targetUI);
 		return mainView;
 	}
 	
@@ -26,6 +27,17 @@ public class EasyAppBuilder {
 		mainView.setTopBarIcon(topBarIcon);
 		return this;
 	}
+	
+	public EasyAppBuilder withTopBar() {
+		mainView.setTopBar(true);
+		return this;
+	}
+	
+	public EasyAppBuilder withNavigationIcon(Image topBarIcon) {
+		mainView.setNavigationIcon(topBarIcon);
+		return this;
+	}
+	
 	
 	public EasyAppBuilder withLogingCapabilities(LoginTrigger loginTrigger, LogoutTrigger logoutTrigger) {
 		mainView.setLogingCapabilities(true);

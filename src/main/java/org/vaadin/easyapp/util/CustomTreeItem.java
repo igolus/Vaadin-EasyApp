@@ -6,6 +6,7 @@ public class CustomTreeItem {
 	private CustomTreeItem parent;
 	private String rootViewName = "Undefined";
 	private String rootClassName;
+	private String icon;
 	
 
 	public String getRootClassName() {
@@ -24,12 +25,13 @@ public class CustomTreeItem {
 		this.parent = parent;
 	}
 
-	public CustomTreeItem(String label, Class<?> targetClass, String rootViewName, String rootClassName) {
+	public CustomTreeItem(String label, Class<?> targetClass, String rootViewName, String rootClassName, String icon) {
 		super();
 		this.label = label;
 		this.targetClass = targetClass;
 		this.rootViewName = rootViewName;
 		this.rootClassName = rootClassName;
+		this.icon = icon;
 		
 	}
 
@@ -39,6 +41,12 @@ public class CustomTreeItem {
 
 	public Class<?> getTargetClass() {
 		return targetClass;
+	}
+	
+	
+
+	public String getIcon() {
+		return icon;
 	}
 
 	@Override
