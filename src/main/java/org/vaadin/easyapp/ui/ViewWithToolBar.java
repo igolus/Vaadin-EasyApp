@@ -22,14 +22,17 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 	public ViewWithToolBar(EasyAppLayout innerComponent)   {
 		this.innerComponent = innerComponent;
 		
-		ActionContainer actionContainer = innerComponent.getActionContainer();
-		List<ButtonWithCheck> listButtonWithCheck = actionContainer.getListButtonWithCheck();
+		ActionContainer actionContainer = innerComponent.buildActionContainer();
+		
 		
 		GridLayout gridLayout = null;
-		gridLayout.setSizeFull();
 		
+		List<ButtonWithCheck> listButtonWithCheck = actionContainer.getListButtonWithCheck();
 		HorizontalLayout buttonLayout = null;
 		if (listButtonWithCheck != null && listButtonWithCheck.size() > 0) {
+			if (gridLayout == null) {
+				gridLayout = new GridLayout(2, 1);
+			}
 			buttonLayout = new HorizontalLayout();
 			for (ButtonWithCheck buttonWithCheck : listButtonWithCheck) {
 				buttonLayout.addComponent(buttonWithCheck.getButton());
@@ -37,6 +40,9 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 		}
 		HorizontalLayout searchLayout = null;
 		if (actionContainer.getSearchTrigger() != null) {
+			if (gridLayout == null) {
+				gridLayout = new GridLayout(2, 1);
+			}
 			searchLayout = new HorizontalLayout();
 			TextField search = new TextField();
 			searchLayout.addComponent(search);
@@ -47,12 +53,21 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 		}
 		
 		
-		new GridLayout(2, 1);
+		if (gridLayout != null) {
+			gridLayout.setSizeFull();
+			gridLayout.addComponent(buttonLayout, 0, 0);
+			gridLayout.setComponentAlignment(buttonLayout, Alignment.MIDDLE_LEFT);
+			gridLayout.addComponent(searchLayout, 1, 0);
+			gridLayout.setComponentAlignment(searchLayout, Alignment.MIDDLE_RIGHT);
+			addComponent(gridLayout);
+			
+		}
 		
-		gridLayout.addComponent(buttonLayout, 0, 0);
-		gridLayout.setComponentAlignment(buttonLayout, Alignment.MIDDLE_LEFT);
-		gridLayout.addComponent(searchLayout, 1, 0);
-		gridLayout.setComponentAlignment(searchLayout, Alignment.MIDDLE_RIGHT);
+		addComponent(innerComponent);
+		setExpandRatio(innerComponent, 1.0f);
+		
+		
+		
 	}
 
 	public EasyAppLayout getInnerComponent() {
