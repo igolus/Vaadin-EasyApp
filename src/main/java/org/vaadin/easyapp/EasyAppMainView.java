@@ -1,35 +1,35 @@
 package org.vaadin.easyapp;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.vaadin.cssinject.CSSInject;
 import org.vaadin.easyapp.event.LoginTrigger;
 import org.vaadin.easyapp.event.LogoutTrigger;
 import org.vaadin.easyapp.event.NavigationTrigger;
 import org.vaadin.easyapp.event.SearchTrigger;
 import org.vaadin.easyapp.ui.ToolBar;
 import org.vaadin.easyapp.util.AnnotationScanner;
-import org.vaadin.easyapp.util.MessageBuilder;
 import org.vaadin.easyapp.util.TreeWithIcon;
 import org.vaadin.easyapp.util.UserPasswordPopupView;
-import org.vaadin.easyapp.util.VisitableView;
 import org.vaadin.easyapp.util.annotations.RootView;
 
 import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewDisplay;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
@@ -43,8 +43,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.TabSheet.Tab;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -71,9 +71,11 @@ public class EasyAppMainView extends VerticalLayout  {
 	private HorizontalSplitPanel downSplitPanel;
 
 	private Component topBar;
-	
+
 	private ArrayList<NavigationTrigger> navigationTriggers = new ArrayList<>();
-	
+
+	private Button collapseButton;
+
 	public ArrayList<NavigationTrigger> getNavigationTriggers() {
 		return navigationTriggers;
 	}
@@ -81,7 +83,7 @@ public class EasyAppMainView extends VerticalLayout  {
 	public synchronized void addNavigationTrigger (NavigationTrigger navigationTrigger) {
 		navigationTriggers.add(navigationTrigger);
 	}
-	
+
 
 	/**
 	 * return top bar as a component
@@ -127,6 +129,8 @@ public class EasyAppMainView extends VerticalLayout  {
 
 	private String mainViewStyle;
 
+	private String navButtonStyle;
+
 	private SearchTrigger onSearchListener;
 
 	private Resource iconSearch;
@@ -134,11 +138,19 @@ public class EasyAppMainView extends VerticalLayout  {
 	private String loginText;
 
 	private String loggingUserPrompt;
-	
+
 	private String loginErrorText = "Login error";
-	
+
 	private String styleErrorText;
-	
+
+	public String getNavButtonStyle() {
+		return navButtonStyle;
+	}
+
+	public void setNavButtonStyle(String navButtonStyle) {
+		this.navButtonStyle = navButtonStyle;
+	}
+
 	public void setLoginErrorText(String loginErrorText) {
 		this.loginErrorText = loginErrorText;
 	}
@@ -184,7 +196,7 @@ public class EasyAppMainView extends VerticalLayout  {
 	private LogoutTrigger logoutTrigger;
 
 	private String userLabelStyle;
-	
+
 	private Label userLabel;
 
 	private Button logoutButton;
@@ -212,7 +224,7 @@ public class EasyAppMainView extends VerticalLayout  {
 	private Image navigationIcon;
 
 	private static UI targetUI;
-	
+
 	public static UI getTargetUI() {
 		return targetUI;
 	}
@@ -328,8 +340,9 @@ public class EasyAppMainView extends VerticalLayout  {
 	 * Buikd the UI
 	 */
 	void build(UI targetUI) {
-		
+
 		this.targetUI = targetUI;
+		initCss();
 		downSplitPanel = new HorizontalSplitPanel();
 
 		mainArea = buildMainArea();
@@ -347,7 +360,7 @@ public class EasyAppMainView extends VerticalLayout  {
 		downSplitPanel.setSplitPosition(300, Unit.PIXELS);
 		downSplitPanel.setSizeFull();
 		downSplitPanel.setLocked(true);
-		
+
 		if (topBarb) {
 			topBar = buildTopBar();
 			if (getTopBarStyleName() != null) {
@@ -366,31 +379,47 @@ public class EasyAppMainView extends VerticalLayout  {
 		else {
 			addComponent(downSplitPanel);
 		}
-		
+
 		setSizeFull();
-		
-//		if (getToolBar() != null) {
-//			manageToolBar();
-//		}
+
+		//		if (getToolBar() != null) {
+		//			manageToolBar();
+		//		}
 	}
 
-//	private void manageToolBar() {
-//		
-//		getNavigator().addViewChangeListener(new ViewChangeListener() {
-//
-//			@Override
-//			public boolean beforeViewChange(ViewChangeEvent event) {
-//				// TODO Auto-generated method stub
-//				return true;
-//			}
-//
-//			@Override
-//			public void afterViewChange(ViewChangeEvent event) {
-//				if (event.getNewView() instanceof VisitableView) {
-//					getToolBar().inspect((VisitableView) event.getNewView());
-//				}
-//			}});
-//	}
+	private void initCss() {
+		InputStream in = getClass().getClassLoader().getResourceAsStream("/css/styles.css");
+		if (in != null) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+			try {
+				String css = IOUtils.toString(reader);
+				new CSSInject(getTargetUI()).setStyles(css);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				logger.error("Unable to load Css style.css", e);
+			}
+		}
+		
+
+	}
+
+	//	private void manageToolBar() {
+	//		
+	//		getNavigator().addViewChangeListener(new ViewChangeListener() {
+	//
+	//			@Override
+	//			public boolean beforeViewChange(ViewChangeEvent event) {
+	//				// TODO Auto-generated method stub
+	//				return true;
+	//			}
+	//
+	//			@Override
+	//			public void afterViewChange(ViewChangeEvent event) {
+	//				if (event.getNewView() instanceof VisitableView) {
+	//					getToolBar().inspect((VisitableView) event.getNewView());
+	//				}
+	//			}});
+	//	}
 
 
 	private void resfreshBreabCrumb() {
@@ -431,12 +460,12 @@ public class EasyAppMainView extends VerticalLayout  {
 	}
 
 	private Component buildTopBar() {
-		
+
 		HorizontalLayout horizontalLayoutTopBar = new HorizontalLayout();
 		horizontalLayoutTopBar.setSizeFull();
 		//horizontalLayoutTopBar.setMargin(false);
 		horizontalLayoutTopBar.setStyleName("topBannerBackGround");
-		
+
 		HorizontalLayout lefthHorizontalBar = new HorizontalLayout();
 		//icon
 		Image image = getTopBarIcon();
@@ -447,10 +476,10 @@ public class EasyAppMainView extends VerticalLayout  {
 		breadCrumbBar = new HorizontalLayout();
 		lefthHorizontalBar.addComponent(breadCrumbBar);
 		lefthHorizontalBar.setComponentAlignment(breadCrumbBar, Alignment.MIDDLE_LEFT);
-		
+
 		horizontalLayoutTopBar.addComponent(lefthHorizontalBar);
 		horizontalLayoutTopBar.setComponentAlignment(lefthHorizontalBar, Alignment.MIDDLE_LEFT);
-		
+
 		toolsLayout = new HorizontalLayout();
 		if (searchCapabilities) {
 			TextField search = new TextField();
@@ -463,7 +492,6 @@ public class EasyAppMainView extends VerticalLayout  {
 			else {
 				searchButton.setIcon(iconSearch);
 			}
-
 			toolsLayout.addComponent(searchButton);
 			searchButton.addClickListener((event) -> onSearchListener.searchTriggered(search.getValue()));
 		}
@@ -477,18 +505,18 @@ public class EasyAppMainView extends VerticalLayout  {
 
 		horizontalLayoutTopBar.addComponent(toolsLayout);
 		horizontalLayoutTopBar.setComponentAlignment(toolsLayout,  Alignment.MIDDLE_RIGHT);
-		
+
 		if (toolBarb) {
 			VerticalLayout verticalLayout= new VerticalLayout();
 			verticalLayout.addComponent(horizontalLayoutTopBar);
-			
+
 			toolBar = new ToolBar(gridBar);
 			verticalLayout.addComponent(toolBar);
 			verticalLayout.setExpandRatio(horizontalLayoutTopBar, 0.7f);
 			verticalLayout.setExpandRatio(toolBar, 0.3f);
 			return verticalLayout;
 		}
-		
+
 		return horizontalLayoutTopBar;
 	}
 
@@ -496,9 +524,9 @@ public class EasyAppMainView extends VerticalLayout  {
 		toolsLoginButton = new Button(loggingTextButton);
 		Button innerLoginButton = buidInnerLoginButton(toolsLayout);
 		loginPopup = buildLoginPopup(innerLoginButton);
-		
+
 		manageLogoutBehavior(logoutButton, toolsLayout);
-		
+
 		toolsLayout.addComponents(toolsLoginButton, loginPopup);
 		toolsLoginButton.addClickListener(click -> loginPopup.setPopupVisible(true));
 	}
@@ -515,7 +543,7 @@ public class EasyAppMainView extends VerticalLayout  {
 				}
 			}
 		});
-		
+
 	}
 
 	private UserPasswordPopupView buildLoginPopup(Button innerLoginButton) {
@@ -550,7 +578,7 @@ public class EasyAppMainView extends VerticalLayout  {
 
 		UserPasswordPopupView popup = new UserPasswordPopupView(null, popupContent);
 		popup.setViewLayout(viewLayout);
-		
+
 		popup.setPasswordField(password);
 		popup.setUserTextField(user);
 		return popup;
@@ -573,11 +601,11 @@ public class EasyAppMainView extends VerticalLayout  {
 						if (userLabelStyle != null) {
 							userLabel.setStyleName(userLabelStyle);
 						}
-						
+
 						toolsLayout.addComponent(userLabel);
 						toolsLayout.addComponent(logoutButton);
 						toolsLayout.setComponentAlignment(userLabel, Alignment.MIDDLE_CENTER);
-						
+
 					}
 					else {
 						loginPopup.markAsError(loginErrorText, styleErrorText);
@@ -600,21 +628,38 @@ public class EasyAppMainView extends VerticalLayout  {
 
 	private ComponentContainer buildNavigation(ComponentContainer target)  {
 		VerticalLayout parentLayout = new VerticalLayout();
+		parentLayout.setMargin(false);
+		parentLayout.setSpacing(false);
 		//GridLayout parentLayout = new GridLayout(1, 2);
-		
+
 		if (navigationIcon != null) {
 			parentLayout.addComponent(navigationIcon);
 			parentLayout.setComponentAlignment(navigationIcon,  Alignment.TOP_CENTER);
 		}
-		
-		
+
+		HorizontalLayout collapseLayout = new HorizontalLayout();
+		collapseButton = new Button();
+		//collapseButton.setSizeFull();
+		collapseButton.setIcon(VaadinIcons.ANGLE_DOUBLE_LEFT);
+
+		collapseLayout.addComponent(collapseButton);
+		collapseLayout.setComponentAlignment(collapseButton, Alignment.MIDDLE_RIGHT);
+		collapseLayout.setSizeFull();
+
 		navigationLayout = new VerticalLayout();
 		navigationLayout.setSizeFull();
 		ViewDisplay viewDisplay = new Navigator.ComponentContainerViewDisplay(target);
 		navigator = new Navigator(UI.getCurrent(), viewDisplay);
 		parentLayout.setSizeFull();
+
 		parentLayout.addComponent(navigationLayout);
+		parentLayout.addComponent(collapseButton);
+		collapseButton.setWidth("100%");
+		parentLayout.setComponentAlignment(collapseButton, Alignment.MIDDLE_RIGHT);
 		parentLayout.setExpandRatio(navigationLayout, 1.0f);
+
+
+
 		buildAccordion();
 		return parentLayout;
 	}
@@ -627,9 +672,79 @@ public class EasyAppMainView extends VerticalLayout  {
 			Resource icon = EasyAppMainView.getIcon(treeWithIcon.getIcon());
 			accordion.addTab(treeWithIcon.getTree(), name, icon);
 		});
-
 		accordion.setSizeFull();
 		navigationLayout.addComponent(accordion);
+
+		CSSInject css = new CSSInject(getTargetUI());
+//
+//		//css.setStyles(".v-button { background: #0ea; }");
+//
+//		css.setStyles(".v-button-Cool .v-button-caption {\r\n" + 
+//				"  color: #fff;\r\n" + 
+//				"  background-color: #4455aa;\r\n" + 
+//				"  border: 1px solid #4455aa;\r\n" + 
+//				"  text-shadow:2px 2px 0px #474746;\r\n" + 
+//				"  height: 50px;\r\n" + 
+//				"  font-family:Trebuchet MS;\r\n" + 
+//				"  font-weight: bold;\r\n" + 
+//				"}");
+//
+		css.setStyles(".v-button-Red .v-button-caption {" + 
+				"    font-weight: bold;" + 
+				"    color:red;" + 
+				"    background-color: #4455aa;" +
+				"}");
+
+		Button testButt1 = new Button("Test");
+		testButt1.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				testButt1.setStyleName("Selected");
+				
+			}
+		});
+		testButt1.setStyleName("Nav");
+		testButt1.setWidth("100%");
+
+		Button testButt2 = new Button("Butt2");
+		testButt2.setStyleName("Nav");
+		testButt2.setWidth("100%");
+		
+		
+		Button testButt3 = new Button("Butt3");
+		testButt3.setStyleName("Nav");
+		testButt3.setWidth("100%");
+
+
+		//		css.setStyles(".v-button {\r\n" + 
+		//				"  color: #fff;\r\n" + 
+		//				"  background-color: #4455aa;\r\n" + 
+		//				"  border: 1px solid #4455aa;\r\n" + 
+		//				"  text-shadow:2px 2px 0px #474746;\r\n" + 
+		//				"  height: 50px;\r\n" + 
+		//				"  font-family:Trebuchet MS;\r\n" + 
+		//				"  font-weight: bold;\r\n" + 
+		//				"}");
+		//		testButt1.setStyleName("custom-style");
+
+
+		VerticalLayout vertLayout = new VerticalLayout();
+		vertLayout.setMargin(false);
+		vertLayout.setSpacing(false);
+		vertLayout.addComponent(testButt1);
+		vertLayout.addComponent(testButt2);
+		vertLayout.addComponent(testButt3);
+
+//		css = new CSSInject(getTargetUI());
+//		css.setStyles(".v-label {color:red;}");
+
+//		Label colorMeDynamically = new Label(
+//				"Hello Vaadin, in all different colors!");
+//		vertLayout.addComponent(colorMeDynamically);
+
+		Tab tab = accordion.addTab(vertLayout, "Test");
+		tab.setStyleName("Nav");
 	}
 
 	/**
@@ -672,34 +787,34 @@ public class EasyAppMainView extends VerticalLayout  {
 
 	public void setToolbar(boolean toolBar) {
 		this.toolBarb = toolBar;
-		
+
 	}
 
 	public void setTopBar(boolean topBar) {
 		this.topBarb = topBar;
-		
+
 	}
 
 	public void setNavigationIcon(Image navigationIcon) {
 		this.navigationIcon = navigationIcon;
 	}
-	
+
 	public static void executeInTargetUI(Runnable runnable) {
 		if (targetUI != null) {
 			targetUI.access(runnable);
 		} 
-		
-//		targetUI.access( ()  -> 
-//		{
-//			try {
-//				//VaadinSession.getCurrent().getLockInstance().lock();
-//				//Thread.sleep(200);
-//				runnable.run();
-//				//targetUI.push();
-//			} catch (InterruptedException e) {
-//				logger.error(MessageBuilder.getEasyAppMessage("Unable to get the view map"), e);
-//				Thread.currentThread().interrupt();
-//			}
-//		});
+
+		//		targetUI.access( ()  -> 
+		//		{
+		//			try {
+		//				//VaadinSession.getCurrent().getLockInstance().lock();
+		//				//Thread.sleep(200);
+		//				runnable.run();
+		//				//targetUI.push();
+		//			} catch (InterruptedException e) {
+		//				logger.error(MessageBuilder.getEasyAppMessage("Unable to get the view map"), e);
+		//				Thread.currentThread().interrupt();
+		//			}
+		//		});
 	}
 }

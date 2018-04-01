@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin</groupId>
@@ -48,6 +49,13 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+
+
+		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>activelink</artifactId>
 			<version>${activelink.version}</version>
@@ -82,14 +90,20 @@
 			</exclusions>
 
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>cssinject</artifactId>
+			<version>2.0.3</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
 			<version>3.20.0-GA</version>
 		</dependency>
-		
-		
+
+
 	</dependencies>
 	<repositories>
 		<repository>
@@ -99,6 +113,16 @@
 	</repositories>
 
 	<build>
+
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
