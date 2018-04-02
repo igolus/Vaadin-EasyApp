@@ -89,4 +89,9 @@ public class EasyAppBuilder {
 		return this;
 	}
 
+	public void withNavigationStlyle(String mainStyle, String selectedStyle) {
+		mainView.setMainStyle(mainStyle);
+		mainView.setSelectedStyle(selectedStyle);
+	}
+
 }

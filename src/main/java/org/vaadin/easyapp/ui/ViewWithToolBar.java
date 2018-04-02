@@ -13,6 +13,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Image;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -24,7 +25,7 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 	}
 
 	private EasyAppLayout innerComponent;
-	private HorizontalLayout buttonLayout;
+	private HorizontalLayout leftLayout;
 	private HorizontalLayout searchLayout;
 
 	public ViewWithToolBar() {
@@ -40,24 +41,30 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 		
 		ActionContainer actionContainer = innerComponent.buildActionContainer();
 		innerComponent.setActionContainer(actionContainer);
-		GridLayout gridLayout = null;
+		GridLayout gridLayout = new GridLayout(2, 1);
 		List<ButtonWithCheck> listButtonWithCheck = null;
+		List<Image> listImages= null;
 		if (actionContainer != null) {
-			 listButtonWithCheck = actionContainer.getListButtonWithCheck();
+			listImages = actionContainer.getListImages();
+			listButtonWithCheck = actionContainer.getListButtonWithCheck();
 		}
+		leftLayout = new HorizontalLayout();
+		
+		if (listImages != null && listImages.size() > 0) {
+			for (Image image : listImages) {
+				leftLayout.addComponent(image);
+			}
+		}
+		
 		if (listButtonWithCheck != null && listButtonWithCheck.size() > 0) {
-			if (gridLayout == null) {
-				gridLayout = new GridLayout(2, 1);
-			}
-			buttonLayout = new HorizontalLayout();
 			for (ButtonWithCheck buttonWithCheck : listButtonWithCheck) {
-				buttonLayout.addComponent(buttonWithCheck.getButton());
+				buttonWithCheck.getButton().setStyleName(actionContainer.getStyleName());
+				leftLayout.addComponent(buttonWithCheck.getButton());
 			}
 		}
+		
+		
 		if (actionContainer != null && actionContainer.getSearchTrigger() != null) {
-			if (gridLayout == null) {
-				gridLayout = new GridLayout(2, 1);
-			}
 			searchLayout = new HorizontalLayout();
 			TextField search = new TextField();
 			searchLayout.addComponent(search);
@@ -71,9 +78,9 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 		if (gridLayout != null) {
 			gridLayout.setWidth(100,Unit.PERCENTAGE);
 			gridLayout.setStyleName("smallMargin");
-			if (buttonLayout != null) {
-				gridLayout.addComponent(buttonLayout, 0, 0);
-				gridLayout.setComponentAlignment(buttonLayout, Alignment.MIDDLE_LEFT);
+			if (leftLayout != null) {
+				gridLayout.addComponent(leftLayout, 0, 0);
+				gridLayout.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
 			}
 			if (searchLayout != null) {
 				gridLayout.addComponent(searchLayout, 1, 0);
@@ -95,7 +102,7 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 	}
 
 	public void setToolBarStyle(String style) {
-		buttonLayout.setStyleName(style);
+		leftLayout.setStyleName(style);
 		searchLayout.setStyleName(style);
 	}
 }

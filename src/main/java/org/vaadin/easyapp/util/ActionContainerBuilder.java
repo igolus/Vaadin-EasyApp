@@ -8,6 +8,7 @@ import org.vaadin.easyapp.event.SearchTrigger;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Image;
 
 public class ActionContainerBuilder {
 	
@@ -43,6 +44,15 @@ public class ActionContainerBuilder {
 		return this;
 	}
 	
+	public ActionContainerBuilder withStyleNam(String styleName) {
+		actionContainer.setStyleName(styleName);
+		return this;
+	}
+	
+	public ActionContainerBuilder addImageIcon(Image image) {
+		actionContainer.addImageIcon(image);
+		return this;
+	}
 	
 	
 	public ActionContainerBuilder setSearch(SearchTrigger searchTrigger) {

@@ -174,6 +174,8 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 	private String toolBarStyle;
 
+	private String selectedStyle;
+
 	private static UI targetUI;
 
 	public static UI getTargetUI() {
@@ -344,46 +346,6 @@ public class EasyAppMainView extends EasyAppLayout  {
 		}
 	}
 
-	private Component buildTopBar() {
-
-		HorizontalLayout horizontalLayoutTopBar = new HorizontalLayout();
-		horizontalLayoutTopBar.setSizeFull();
-		//horizontalLayoutTopBar.setMargin(false);
-		horizontalLayoutTopBar.setStyleName("topBannerBackGround");
-
-		HorizontalLayout lefthHorizontalBar = new HorizontalLayout();
-		//icon
-		Image image = getTopBarIcon();
-		if (image != null) {
-			lefthHorizontalBar.addComponent(image);
-			//horizontalLayoutTopBar.setComponentAlignment(image, Alignment.MIDDLE_LEFT);
-		}
-		breadCrumbBar = new HorizontalLayout();
-		lefthHorizontalBar.addComponent(breadCrumbBar);
-		lefthHorizontalBar.setComponentAlignment(breadCrumbBar, Alignment.MIDDLE_LEFT);
-
-		horizontalLayoutTopBar.addComponent(lefthHorizontalBar);
-		horizontalLayoutTopBar.setComponentAlignment(lefthHorizontalBar, Alignment.MIDDLE_LEFT);
-
-		toolsLayout = new HorizontalLayout();
-
-		horizontalLayoutTopBar.addComponent(toolsLayout);
-		horizontalLayoutTopBar.setComponentAlignment(toolsLayout,  Alignment.MIDDLE_RIGHT);
-
-		if (toolBarb) {
-			VerticalLayout verticalLayout= new VerticalLayout();
-			verticalLayout.addComponent(horizontalLayoutTopBar);
-
-			toolBar = new ToolBar(gridBar);
-			verticalLayout.addComponent(toolBar);
-			verticalLayout.setExpandRatio(horizontalLayoutTopBar, 0.7f);
-			verticalLayout.setExpandRatio(toolBar, 0.3f);
-			return verticalLayout;
-		}
-
-		return horizontalLayoutTopBar;
-	}
-
 	private UserPasswordPopupView buildLoginPopup(Button innerLoginButton) {
 		VerticalLayout popupContent = new VerticalLayout();
 
@@ -511,14 +473,17 @@ public class EasyAppMainView extends EasyAppLayout  {
 			}
 		});
 		testButt1.setStyleName("Nav");
+		testButt1.setIcon(VaadinIcons.ABACUS);
 		testButt1.setWidth("100%");
 
 		Button testButt2 = new Button("Butt2");
+		testButt2.setIcon(VaadinIcons.ACADEMY_CAP);
 		testButt2.setStyleName("Nav");
 		testButt2.setWidth("100%");
 		
 		
 		Button testButt3 = new Button("Butt3");
+		testButt3.setIcon(VaadinIcons.ABSOLUTE_POSITION);
 		testButt3.setStyleName("Nav");
 		testButt3.setWidth("100%");
 
@@ -601,4 +566,18 @@ public class EasyAppMainView extends EasyAppLayout  {
 	public ActionContainer buildActionContainer() {
 		return actionContainer;
 	}
+
+	public void setMainStyle(String mainStyle) {
+		this.mainViewStyle = mainStyle;
+	}
+	
+	public void setSelectedStyle(String selectedStyle) {
+		this.selectedStyle = selectedStyle;
+	}
+
+	public String getSelectedStyle() {
+		return selectedStyle;
+	}
+	
+	
 }
