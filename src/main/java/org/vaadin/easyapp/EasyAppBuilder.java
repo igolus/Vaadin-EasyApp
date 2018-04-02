@@ -1,6 +1,7 @@
 package org.vaadin.easyapp;
 
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.vaadin.easyapp.event.LoginTrigger;
 import org.vaadin.easyapp.event.LogoutTrigger;
@@ -59,39 +60,44 @@ public class EasyAppBuilder {
 		return this;
 	}
 
-	public EasyAppBuilder withLogingUserText(String loggingUserText) {
-		mainView.setLoggingUserText(loggingUserText);
-		return this;
-	}
-
-	public EasyAppBuilder withLogingPassWordText(String loggingPassWordText) {
-		mainView.setLoggingPassWordText(loggingPassWordText);
-		return this;
-	}
-
-	public EasyAppBuilder withLoginCaption(String loginCaption) {
-		mainView.setLoginCaption(loginCaption);
-		return this;
-	}
-
-	public EasyAppBuilder withBreadcrumbStyle(String breadcrumbLabelStyle) {
-		mainView.setBreadcrumbLabelStyle(breadcrumbLabelStyle);
-		return this;
-	}
-
-	public EasyAppBuilder withButtonLinkStyleInBreadCrumb(String buttonStyle) {
-		mainView.setBreadcrumbLabelStyle(buttonStyle);
-		return this;
-	}
-	
-	public EasyAppBuilder withToolBar() {
-		mainView.setToolbar(true);
-		return this;
-	}
+//	public EasyAppBuilder withLogingUserText(String loggingUserText) {
+//		mainView.setLoggingUserText(loggingUserText);
+//		return this;
+//	}
+//
+//	public EasyAppBuilder withLogingPassWordText(String loggingPassWordText) {
+//		mainView.setLoggingPassWordText(loggingPassWordText);
+//		return this;
+//	}
+//
+//	public EasyAppBuilder withLoginCaption(String loginCaption) {
+//		mainView.setLoginCaption(loginCaption);
+//		return this;
+//	}
+//
+//	public EasyAppBuilder withBreadcrumbStyle(String breadcrumbLabelStyle) {
+//		mainView.setBreadcrumbLabelStyle(breadcrumbLabelStyle);
+//		return this;
+//	}
+//
+//	public EasyAppBuilder withButtonLinkStyleInBreadCrumb(String buttonStyle) {
+//		mainView.setBreadcrumbLabelStyle(buttonStyle);
+//		return this;
+//	}
+//	
+//	public EasyAppBuilder withToolBar() {
+//		mainView.setToolbar(true);
+//		return this;
+//	}
 
 	public void withNavigationStlyle(String mainStyle, String selectedStyle) {
 		mainView.setMainStyle(mainStyle);
 		mainView.setSelectedStyle(selectedStyle);
+	}
+
+	public void withRessourceBundle(ResourceBundle bundle) {
+		mainView.setResourceBundle(bundle);
+		
 	}
 
 }

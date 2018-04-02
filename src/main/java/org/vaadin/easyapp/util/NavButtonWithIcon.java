@@ -1,22 +1,36 @@
 package org.vaadin.easyapp.util;
 
-import com.vaadin.ui.Tree;
+import org.vaadin.easyapp.EasyAppMainView;
+import org.vaadin.easyapp.util.annotations.ContentView;
 
-public class NavButtonWithIcon {
+import com.vaadin.navigator.Navigator;
+import com.vaadin.ui.Button;
+
+public class NavButtonWithIcon extends Button {
 	
-	private String icon;
 	private String caption;
+	private EasyAppMainView easyAppMainView;
+	private ContentView contentView;
+	private Navigator navigator;
 
-	public NavButtonWithIcon(String caption, String icon) {
-		super();
+
+	public NavButtonWithIcon(ContentView contentView, EasyAppMainView easyAppMainView, Navigator navigator) {
+		super(EasyAppMainView.getBundleValue(contentView.viewName()));
+		this.contentView = contentView;
+		this.navigator = navigator;
+		this.easyAppMainView = easyAppMainView;
+		setStyleName(easyAppMainView.getNavButtonStyle());
 		this.caption = caption;
-		this.icon = icon;
-
-	}
-
-	public NavButtonWithIcon(String viewName, String icon2, String bundle) {
-		// TODO Auto-generated constructor stub
+		addClickListener(this::navCliked);
 	}
 	
+	public void navCliked(ClickEvent event) {
+		navigator.navigateTo(contentView.getClass().toString());
+		setStyleName(easyAppMainView.getSelectedStyle());
+	}
+
+	public ContentView getContentView() {
+		return contentView;
+	}
 	
 }

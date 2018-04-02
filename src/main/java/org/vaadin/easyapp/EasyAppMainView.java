@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
@@ -134,37 +135,37 @@ public class EasyAppMainView extends EasyAppLayout  {
 		this.navButtonStyle = navButtonStyle;
 	}
 
-	void setLoggingUserText(String loggingUserText) {
-		this.loggingUserText = loggingUserText;
-	}
+//	void setLoggingUserText(String loggingUserText) {
+//		this.loggingUserText = loggingUserText;
+//	}
+//
+//	void setLoggingPassWordText(String loggingPassWordText) {
+//		this.loggingPassWordText = loggingPassWordText;
+//	}
+//
+//	void setLoginCaption(String loginCaption) {
+//		this.loginCaption = loginCaption;
+//	}
 
-	void setLoggingPassWordText(String loggingPassWordText) {
-		this.loggingPassWordText = loggingPassWordText;
-	}
-
-	void setLoginCaption(String loginCaption) {
-		this.loginCaption = loginCaption;
-	}
-
-	private String popupLoginStyle;
-
-	private String loggingUserText = "login:";
-
-	private String loggingPassWordText = "password:";
-
-	private UserPasswordPopupView loginPopup;
-
-	private String loginCaption = "Please login to access the application. (test@test.com/passw0rd)";
-
-	private String breadcrumbLabelStyle;
-
-	private HorizontalLayout breadCrumbBar;
-
-	private String buttonLinkStyle;
-
-	private HorizontalLayout toolsLayout;
-
-	private boolean toolBarb;
+//	private String popupLoginStyle;
+//
+//	private String loggingUserText = "login:";
+//
+//	private String loggingPassWordText = "password:";
+//
+//	private UserPasswordPopupView loginPopup;
+//
+//	private String loginCaption = "Please login to access the application. (test@test.com/passw0rd)";
+//
+//	private String breadcrumbLabelStyle;
+//
+//	private HorizontalLayout breadCrumbBar;
+//
+//	private String buttonLinkStyle;
+//
+//	private HorizontalLayout toolsLayout;
+//
+//	private boolean toolBarb;
 
 	private ToolBar toolBar;
 
@@ -172,9 +173,11 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 	private Image navigationIcon;
 
-	private String toolBarStyle;
+//	private String toolBarStyle;
 
 	private String selectedStyle;
+
+	private static ResourceBundle bundle;
 
 	private static UI targetUI;
 
@@ -190,13 +193,13 @@ public class EasyAppMainView extends EasyAppLayout  {
 		return toolBar;
 	}
 
-	public void setButtonLinkStyle(String buttonLinkStyle) {
-		this.buttonLinkStyle = buttonLinkStyle;
-	}
-
-	public void setBreadcrumbLabelStyle(String breadcrumbLabelStyle) {
-		this.breadcrumbLabelStyle = breadcrumbLabelStyle;
-	}
+//	public void setButtonLinkStyle(String buttonLinkStyle) {
+//		this.buttonLinkStyle = buttonLinkStyle;
+//	}
+//
+//	public void setBreadcrumbLabelStyle(String breadcrumbLabelStyle) {
+//		this.breadcrumbLabelStyle = breadcrumbLabelStyle;
+//	}
 	String getLoginText() {
 		return loginText;
 	}
@@ -308,27 +311,27 @@ public class EasyAppMainView extends EasyAppLayout  {
 	//			}});
 	//	}
 
-
-	private void resfreshBreabCrumb() {
-		List<Component> breadCrumbLinkComponent = scanner.getBreadCrumbLinkList();
-		breadCrumbBar.removeAllComponents();
-		for (Iterator iterator = breadCrumbLinkComponent.iterator(); iterator.hasNext();) {
-			Component component = (Component) iterator.next();
-			if (breadcrumbLabelStyle != null) {
-				component.setStyleName(breadcrumbLabelStyle);
-			}
-			breadCrumbBar.addComponent(component);
-			breadCrumbBar.setComponentAlignment(component, Alignment.MIDDLE_CENTER);
-			if (iterator.hasNext()) {
-				Label labelSep = new Label (" >");
-				if (breadcrumbLabelStyle != null) {
-					labelSep.setStyleName(breadcrumbLabelStyle);
-				}
-				breadCrumbBar.addComponent(labelSep);
-				breadCrumbBar.setComponentAlignment(labelSep, Alignment.MIDDLE_CENTER);
-			}
-		}
-	}
+//
+//	private void resfreshBreabCrumb() {
+//		List<Component> breadCrumbLinkComponent = scanner.getBreadCrumbLinkList();
+//		breadCrumbBar.removeAllComponents();
+//		for (Iterator iterator = breadCrumbLinkComponent.iterator(); iterator.hasNext();) {
+//			Component component = (Component) iterator.next();
+//			if (breadcrumbLabelStyle != null) {
+//				component.setStyleName(breadcrumbLabelStyle);
+//			}
+//			breadCrumbBar.addComponent(component);
+//			breadCrumbBar.setComponentAlignment(component, Alignment.MIDDLE_CENTER);
+//			if (iterator.hasNext()) {
+//				Label labelSep = new Label (" >");
+//				if (breadcrumbLabelStyle != null) {
+//					labelSep.setStyleName(breadcrumbLabelStyle);
+//				}
+//				breadCrumbBar.addComponent(labelSep);
+//				breadCrumbBar.setComponentAlignment(labelSep, Alignment.MIDDLE_CENTER);
+//			}
+//		}
+//	}
 
 	/**
 	 * Get the HorizontalSplitPanel usefull if you want to call setSplitPosition
@@ -340,49 +343,49 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 	private void scanPackage() {
 		try {
-			scanner = new AnnotationScanner(getNavigator(), packagesToScan, navigationTriggers, buttonLinkStyle);
+			scanner = new AnnotationScanner(getNavigator(), packagesToScan, navigationTriggers, this);
 		} catch (InstantiationException | IllegalAccessException e) {
 			logger.error("Unable to create the AnnotationScanner", e);
 		}
 	}
 
-	private UserPasswordPopupView buildLoginPopup(Button innerLoginButton) {
-		VerticalLayout popupContent = new VerticalLayout();
-
-		TextField user = new TextField(loggingUserText);
-		user.setWidth("300px");
-		Binder binder = new Binder<>();
-		binder.forField(user).asRequired();
-
-		// Create the password input field
-		PasswordField password = new PasswordField(loggingPassWordText);
-		password.setWidth("300px");
-		binder.forField(password).asRequired();
-		password.setValue("");
-
-		// Add both to a panel
-		VerticalLayout fields = new VerticalLayout(user, password, innerLoginButton);
-		fields.setCaption(loginCaption);
-		fields.setSpacing(true);
-		fields.setMargin(new MarginInfo(true, true, true, false));
-		fields.setSizeUndefined();
-
-		// The view root layout
-		VerticalLayout viewLayout = new VerticalLayout(fields);
-		viewLayout.setSizeFull();
-		viewLayout.setComponentAlignment(fields, Alignment.MIDDLE_CENTER);
-		if (popupLoginStyle != null) {
-			viewLayout.setStyleName(popupLoginStyle);
-		}
-		popupContent.addComponent(viewLayout);
-
-		UserPasswordPopupView popup = new UserPasswordPopupView(null, popupContent);
-		popup.setViewLayout(viewLayout);
-
-		popup.setPasswordField(password);
-		popup.setUserTextField(user);
-		return popup;
-	}
+//	private UserPasswordPopupView buildLoginPopup(Button innerLoginButton) {
+//		VerticalLayout popupContent = new VerticalLayout();
+//
+//		TextField user = new TextField(loggingUserText);
+//		user.setWidth("300px");
+//		Binder binder = new Binder<>();
+//		binder.forField(user).asRequired();
+//
+//		// Create the password input field
+//		PasswordField password = new PasswordField(loggingPassWordText);
+//		password.setWidth("300px");
+//		binder.forField(password).asRequired();
+//		password.setValue("");
+//
+//		// Add both to a panel
+//		VerticalLayout fields = new VerticalLayout(user, password, innerLoginButton);
+//		fields.setCaption(loginCaption);
+//		fields.setSpacing(true);
+//		fields.setMargin(new MarginInfo(true, true, true, false));
+//		fields.setSizeUndefined();
+//
+//		// The view root layout
+//		VerticalLayout viewLayout = new VerticalLayout(fields);
+//		viewLayout.setSizeFull();
+//		viewLayout.setComponentAlignment(fields, Alignment.MIDDLE_CENTER);
+//		if (popupLoginStyle != null) {
+//			viewLayout.setStyleName(popupLoginStyle);
+//		}
+//		popupContent.addComponent(viewLayout);
+//
+//		UserPasswordPopupView popup = new UserPasswordPopupView(null, popupContent);
+//		popup.setViewLayout(viewLayout);
+//
+//		popup.setPasswordField(password);
+//		popup.setUserTextField(user);
+//		return popup;
+//	}
 
 	
 	private ComponentContainer buildMainArea() {
@@ -546,11 +549,22 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 		return icon;
 	}
-
-	public void setToolbar(boolean toolBar) {
-		this.toolBarb = toolBar;
-
+	
+	/**
+	 * Try to get the bundle value 
+	 * return value if not found
+	 */
+	public static String getBundleValue(String value) {
+		if (getBundle() != null && getBundle().containsKey(value)) {
+			return bundle.getString(value);
+		}
+		return value;
 	}
+
+//	public void setToolbar(boolean toolBar) {
+//		this.toolBarb = toolBar;
+//
+//	}
 
 	public void setNavigationIcon(Image navigationIcon) {
 		this.navigationIcon = navigationIcon;
@@ -577,6 +591,14 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 	public String getSelectedStyle() {
 		return selectedStyle;
+	}
+
+	public void setResourceBundle(ResourceBundle bundle) {
+		this.bundle = bundle;
+	}
+
+	public static ResourceBundle getBundle() {
+		return bundle;
 	}
 	
 	
