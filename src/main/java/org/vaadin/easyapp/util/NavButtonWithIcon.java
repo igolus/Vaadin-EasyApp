@@ -12,10 +12,12 @@ public class NavButtonWithIcon extends Button {
 	private EasyAppMainView easyAppMainView;
 	private ContentView contentView;
 	private Navigator navigator;
+	private AnnotationScanner scanner;
 
 
-	public NavButtonWithIcon(ContentView contentView, EasyAppMainView easyAppMainView, Navigator navigator) {
+	public NavButtonWithIcon(ContentView contentView, EasyAppMainView easyAppMainView, Navigator navigator, AnnotationScanner scanner) {
 		super(EasyAppMainView.getBundleValue(contentView.viewName()));
+		this.scanner = scanner;
 		this.contentView = contentView;
 		this.navigator = navigator;
 		this.easyAppMainView = easyAppMainView;
@@ -27,10 +29,22 @@ public class NavButtonWithIcon extends Button {
 	public void navCliked(ClickEvent event) {
 		navigator.navigateTo(contentView.getClass().toString());
 		setStyleName(easyAppMainView.getSelectedStyle());
+		if (scanner.getSelectedNav() != null) {
+			scanner.getSelectedNav().setStyleName(easyAppMainView.getNavButtonStyle());
+		}
+		scanner.setSelectedNav(this);
 	}
 
 	public ContentView getContentView() {
 		return contentView;
+	}
+	
+	public void setStyleNav() {
+		setStyleName(easyAppMainView.getNavButtonStyle());
+	}
+	
+	public void setStyleSelected() {
+		setStyleName(easyAppMainView.getSelectedStyle());
 	}
 	
 }

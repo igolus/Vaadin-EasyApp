@@ -48,6 +48,7 @@ public class AnnotationScanner {
 	private Navigator navigator;
 	private ArrayList<NavigationTrigger> navigationTriggers;
 	private EasyAppMainView easyAppMainView;
+	private NavButtonWithIcon selectedNav = null;
 
 	public AnnotationScanner(Navigator navigator, List<String> packageToScan, 
 			ArrayList<NavigationTrigger> navigationTriggers, EasyAppMainView easyAppMainView) 
@@ -61,25 +62,36 @@ public class AnnotationScanner {
 
 	private Map<String, TreeWithIcon> treeMap = new LinkedHashMap<>();
 	private Map<RootView, List<NavButtonWithIcon>> navButtonMap = new LinkedHashMap<>();
+	
+	public Map<RootView, List<NavButtonWithIcon>> getNavButtonMap() {
+		return navButtonMap;
+	}
+
+	private Map<String, NavButtonWithIcon> navButtonByViewName = new HashMap<>();
+	
 	private Map<String, Component> viewMap = new LinkedHashMap<>();
 
 	public Map<String, TreeWithIcon> getTreeMap() {
 		return treeMap;
 	}
 
-
 	public Map<String, Component> getViewMap() {
 		return viewMap;
 	}
+	
+	public NavButtonWithIcon getSelectedNav() {
+		return selectedNav;
+	}
+
+	public void setSelectedNav(NavButtonWithIcon selectedNav) {
+		this.selectedNav = selectedNav;
+	}
+	
 
 	public void init(List<String> packagesToScan)
 			throws InstantiationException, IllegalAccessException {
 		for (String packageToScan : packagesToScan) {
 			Reflections reflections = new Reflections(packageToScan);
-			//Reflections reflections =  new Reflections(    new ConfigurationBuilder() .setUrls(ClasspathHelper.forJavaClassPath()));
-			
-			
-			
 			List<RootView> rootViews = new ArrayList<>();
 
 			Map<RootView, String> classNameByRootView = new LinkedHashMap<>();
@@ -123,9 +135,10 @@ public class AnnotationScanner {
 							List<NavButtonWithIcon> listNavButton = navButtonMap.get(contentView.rootViewParent());
 							if (listNavButton!=null) 
 							{
-								NavButtonWithIcon navButton = new NavButtonWithIcon(contentView, easyAppMainView, navigator);
+								NavButtonWithIcon navButton = new NavButtonWithIcon(contentView, easyAppMainView, navigator, this);
 								Object view = contentView.getClass().newInstance();
 								ViewWithToolBar viewWithToolBar = new ViewWithToolBar( (EasyAppLayout) view);
+								navButtonByViewName.put(contentView.getClass().toString(), navButton);
 								navigator.addView(contentView.getClass().toString(), (View) viewWithToolBar);
 								listNavButton.add(navButton);
 							}
@@ -293,6 +306,12 @@ public class AnnotationScanner {
 	 * @param clazz
 	 */
 	public void navigateTo(Class<?> clazz) {
+		if (navButtonByViewName.containsKey(clazz.toString())) {
+			NavButtonWithIcon selectedNavButtonWithIcon = navButtonByViewName.get(clazz.toString());
+			selectedNavButtonWithIcon.setStyleSelected();
+			getSelectedNav().setStyleNav();
+			setSelectedNav(selectedNavButtonWithIcon);
+		}
 		navigator.navigateTo(clazz.toString());
 	}
 	

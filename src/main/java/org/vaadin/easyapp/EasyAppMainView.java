@@ -23,6 +23,7 @@ import org.vaadin.easyapp.ui.ToolBar;
 import org.vaadin.easyapp.util.ActionContainer;
 import org.vaadin.easyapp.util.AnnotationScanner;
 import org.vaadin.easyapp.util.EasyAppLayout;
+import org.vaadin.easyapp.util.NavButtonWithIcon;
 import org.vaadin.easyapp.util.TreeWithIcon;
 import org.vaadin.easyapp.util.UserPasswordPopupView;
 import org.vaadin.easyapp.util.annotations.RootView;
@@ -437,16 +438,31 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 	public void buildAccordion() {
 		scanPackage();
-		Map<String, TreeWithIcon> treeByAccordeonItem = scanner.getTreeMap();
+		Map<RootView, List<NavButtonWithIcon>> listButtonByRootView = scanner.getNavButtonMap();
 		accordion = new Accordion();
-		treeByAccordeonItem.forEach((name, treeWithIcon)-> {
-			Resource icon = EasyAppMainView.getIcon(treeWithIcon.getIcon());
-			accordion.addTab(treeWithIcon.getTree(), name, icon);
-		});
-		accordion.setSizeFull();
-		navigationLayout.addComponent(accordion);
-
-		CSSInject css = new CSSInject(getTargetUI());
+		
+		for (Map.Entry<RootView, List<NavButtonWithIcon>> entry : listButtonByRootView.entrySet()) {
+			RootView rootView = entry.getKey();
+			List<NavButtonWithIcon> listNavButtons = entry.getValue();
+			VerticalLayout vertLayout = new VerticalLayout();
+			vertLayout.setMargin(false);
+			vertLayout.setSpacing(false);
+			for (NavButtonWithIcon navButtonWithIcon : listNavButtons) {
+				navButtonWithIcon.setWidth("100%");
+				vertLayout.addComponent(navButtonWithIcon);
+			}
+			Tab tab = accordion.addTab(vertLayout, EasyAppMainView.getBundleValue(rootView.viewName()));
+			tab.setIcon(EasyAppMainView.getIcon(rootView.icon()));
+		}
+		
+//		treeByAccordeonItem.forEach((name, treeWithIcon)-> {
+//			Resource icon = EasyAppMainView.getIcon(treeWithIcon.getIcon());
+//			accordion.addTab(treeWithIcon.getTree(), name, icon);
+//		});
+//		accordion.setSizeFull();
+//		navigationLayout.addComponent(accordion);
+//
+//		CSSInject css = new CSSInject(getTargetUI());
 //
 //		//css.setStyles(".v-button { background: #0ea; }");
 //
@@ -460,35 +476,35 @@ public class EasyAppMainView extends EasyAppLayout  {
 //				"  font-weight: bold;\r\n" + 
 //				"}");
 //
-		css.setStyles(".v-button-Red .v-button-caption {" + 
-				"    font-weight: bold;" + 
-				"    color:red;" + 
-				"    background-color: #4455aa;" +
-				"}");
-
-		Button testButt1 = new Button("Test");
-		testButt1.addClickListener(new ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
-				testButt1.setStyleName("Selected");
-				
-			}
-		});
-		testButt1.setStyleName("Nav");
-		testButt1.setIcon(VaadinIcons.ABACUS);
-		testButt1.setWidth("100%");
-
-		Button testButt2 = new Button("Butt2");
-		testButt2.setIcon(VaadinIcons.ACADEMY_CAP);
-		testButt2.setStyleName("Nav");
-		testButt2.setWidth("100%");
-		
-		
-		Button testButt3 = new Button("Butt3");
-		testButt3.setIcon(VaadinIcons.ABSOLUTE_POSITION);
-		testButt3.setStyleName("Nav");
-		testButt3.setWidth("100%");
+//		css.setStyles(".v-button-Red .v-button-caption {" + 
+//				"    font-weight: bold;" + 
+//				"    color:red;" + 
+//				"    background-color: #4455aa;" +
+//				"}");
+//
+//		Button testButt1 = new Button("Test");
+//		testButt1.addClickListener(new ClickListener() {
+//			
+//			@Override
+//			public void buttonClick(ClickEvent event) {
+//				testButt1.setStyleName("Selected");
+//				
+//			}
+//		});
+//		testButt1.setStyleName("Nav");
+//		testButt1.setIcon(VaadinIcons.ABACUS);
+//		testButt1.setWidth("100%");
+//
+//		Button testButt2 = new Button("Butt2");
+//		testButt2.setIcon(VaadinIcons.ACADEMY_CAP);
+//		testButt2.setStyleName("Nav");
+//		testButt2.setWidth("100%");
+//		
+//		
+//		Button testButt3 = new Button("Butt3");
+//		testButt3.setIcon(VaadinIcons.ABSOLUTE_POSITION);
+//		testButt3.setStyleName("Nav");
+//		testButt3.setWidth("100%");
 
 
 		//		css.setStyles(".v-button {\r\n" + 
@@ -503,12 +519,12 @@ public class EasyAppMainView extends EasyAppLayout  {
 		//		testButt1.setStyleName("custom-style");
 
 
-		VerticalLayout vertLayout = new VerticalLayout();
-		vertLayout.setMargin(false);
-		vertLayout.setSpacing(false);
-		vertLayout.addComponent(testButt1);
-		vertLayout.addComponent(testButt2);
-		vertLayout.addComponent(testButt3);
+//		VerticalLayout vertLayout = new VerticalLayout();
+//		vertLayout.setMargin(false);
+//		vertLayout.setSpacing(false);
+//		vertLayout.addComponent(testButt1);
+//		vertLayout.addComponent(testButt2);
+//		vertLayout.addComponent(testButt3);
 
 //		css = new CSSInject(getTargetUI());
 //		css.setStyles(".v-label {color:red;}");
@@ -517,8 +533,8 @@ public class EasyAppMainView extends EasyAppLayout  {
 //				"Hello Vaadin, in all different colors!");
 //		vertLayout.addComponent(colorMeDynamically);
 
-		Tab tab = accordion.addTab(vertLayout, "Test");
-		tab.setStyleName("Nav");
+//		Tab tab = accordion.addTab(vertLayout, "Test");
+//		tab.setStyleName("Nav");
 	}
 
 	/**
