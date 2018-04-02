@@ -8,6 +8,11 @@ public abstract class EasyAppLayout extends VerticalLayout {
 
 	protected ActionContainer actionContainer = null;
 
+	public EasyAppLayout() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 	public void setActionContainer(ActionContainer actionContainer) {
 		this.actionContainer = actionContainer;
 	}

@@ -24,8 +24,18 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 	}
 
 	private EasyAppLayout innerComponent;
+	private HorizontalLayout buttonLayout;
+	private HorizontalLayout searchLayout;
+
+	public ViewWithToolBar() {
+		super();
+	}
 
 	public ViewWithToolBar(EasyAppLayout innerComponent)   {
+		buildComponents(innerComponent);
+	}
+
+	public void buildComponents(EasyAppLayout innerComponent) {
 		this.innerComponent = innerComponent;
 		
 		ActionContainer actionContainer = innerComponent.buildActionContainer();
@@ -35,7 +45,6 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 		if (actionContainer != null) {
 			 listButtonWithCheck = actionContainer.getListButtonWithCheck();
 		}
-		HorizontalLayout buttonLayout = null;
 		if (listButtonWithCheck != null && listButtonWithCheck.size() > 0) {
 			if (gridLayout == null) {
 				gridLayout = new GridLayout(2, 1);
@@ -45,7 +54,6 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 				buttonLayout.addComponent(buttonWithCheck.getButton());
 			}
 		}
-		HorizontalLayout searchLayout = null;
 		if (actionContainer != null && actionContainer.getSearchTrigger() != null) {
 			if (gridLayout == null) {
 				gridLayout = new GridLayout(2, 1);
@@ -63,12 +71,15 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 		if (gridLayout != null) {
 			gridLayout.setWidth(100,Unit.PERCENTAGE);
 			gridLayout.setStyleName("smallMargin");
-			gridLayout.addComponent(buttonLayout, 0, 0);
-			gridLayout.setComponentAlignment(buttonLayout, Alignment.MIDDLE_LEFT);
-			gridLayout.addComponent(searchLayout, 1, 0);
-			gridLayout.setComponentAlignment(searchLayout, Alignment.MIDDLE_RIGHT);
+			if (buttonLayout != null) {
+				gridLayout.addComponent(buttonLayout, 0, 0);
+				gridLayout.setComponentAlignment(buttonLayout, Alignment.MIDDLE_LEFT);
+			}
+			if (searchLayout != null) {
+				gridLayout.addComponent(searchLayout, 1, 0);
+				gridLayout.setComponentAlignment(searchLayout, Alignment.MIDDLE_RIGHT);
+			}
 			addComponent(gridLayout);
-			
 		}
 		innerComponent.setSizeFull();
 		addComponent(innerComponent);
@@ -81,5 +92,10 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 	public EasyAppLayout getInnerComponent() {
 		// TODO Auto-generated method stub
 		return innerComponent;
+	}
+
+	public void setToolBarStyle(String style) {
+		buttonLayout.setStyleName(style);
+		searchLayout.setStyleName(style);
 	}
 }

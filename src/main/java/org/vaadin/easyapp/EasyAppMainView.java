@@ -19,7 +19,9 @@ import org.vaadin.easyapp.event.LogoutTrigger;
 import org.vaadin.easyapp.event.NavigationTrigger;
 import org.vaadin.easyapp.event.SearchTrigger;
 import org.vaadin.easyapp.ui.ToolBar;
+import org.vaadin.easyapp.util.ActionContainer;
 import org.vaadin.easyapp.util.AnnotationScanner;
+import org.vaadin.easyapp.util.EasyAppLayout;
 import org.vaadin.easyapp.util.TreeWithIcon;
 import org.vaadin.easyapp.util.UserPasswordPopupView;
 import org.vaadin.easyapp.util.annotations.RootView;
@@ -48,7 +50,6 @@ import com.vaadin.ui.TabSheet.Tab;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
 
 
 /**
@@ -56,7 +57,9 @@ import com.vaadin.ui.VerticalSplitPanel;
  * @author igolus
  *
  */
-public class EasyAppMainView extends VerticalLayout  {
+public class EasyAppMainView extends EasyAppLayout  {
+
+
 
 	private static final long serialVersionUID = 1L;
 
@@ -115,33 +118,13 @@ public class EasyAppMainView extends VerticalLayout  {
 
 	private Image topBarIcon;
 
-	private boolean logingCapabilities;
-
-	private String loggingTextButton = "login";
-
-	private boolean searchCapabilities;
-
-	private boolean breadcrumb;
-
-	private String TopBarStyleName;
-
 	private String navigatorStyleName;
 
 	private String mainViewStyle;
 
 	private String navButtonStyle;
 
-	private SearchTrigger onSearchListener;
-
-	private Resource iconSearch;
-
 	private String loginText;
-
-	private String loggingUserPrompt;
-
-	private String loginErrorText = "Login error";
-
-	private String styleErrorText;
 
 	public String getNavButtonStyle() {
 		return navButtonStyle;
@@ -149,22 +132,6 @@ public class EasyAppMainView extends VerticalLayout  {
 
 	public void setNavButtonStyle(String navButtonStyle) {
 		this.navButtonStyle = navButtonStyle;
-	}
-
-	public void setLoginErrorText(String loginErrorText) {
-		this.loginErrorText = loginErrorText;
-	}
-
-	public void setStyleErrorText(String styleErrorText) {
-		this.styleErrorText = styleErrorText;
-	}
-
-	void setLoggingText(String loggingText) {
-		this.loggingTextButton = loggingText;
-	}
-
-	void setLoggingUserPrompt(String loggingUserPrompt) {
-		this.loggingUserPrompt = loggingUserPrompt;
 	}
 
 	void setLoggingUserText(String loggingUserText) {
@@ -189,22 +156,6 @@ public class EasyAppMainView extends VerticalLayout  {
 
 	private String loginCaption = "Please login to access the application. (test@test.com/passw0rd)";
 
-	private String logOutTextButton = "logout";
-
-	private LoginTrigger loginTrigger;
-
-	private LogoutTrigger logoutTrigger;
-
-	private String userLabelStyle;
-
-	private Label userLabel;
-
-	private Button logoutButton;
-
-	private Button toolsLoginButton;
-
-	private Label breadcrumbLabel;
-
 	private String breadcrumbLabelStyle;
 
 	private HorizontalLayout breadCrumbBar;
@@ -219,9 +170,9 @@ public class EasyAppMainView extends VerticalLayout  {
 
 	private GridLayout gridBar;
 
-	private boolean topBarb;
-
 	private Image navigationIcon;
+
+	private String toolBarStyle;
 
 	private static UI targetUI;
 
@@ -244,33 +195,12 @@ public class EasyAppMainView extends VerticalLayout  {
 	public void setBreadcrumbLabelStyle(String breadcrumbLabelStyle) {
 		this.breadcrumbLabelStyle = breadcrumbLabelStyle;
 	}
-
-	void setUserLabelStyle(String userLabelStyle) {
-		this.userLabelStyle = userLabelStyle;
-	}
-
 	String getLoginText() {
 		return loginText;
 	}
 
 	void setLoginText(String loginText) {
 		this.loginText = loginText;
-	}
-
-	public void setIconSearch(Resource iconSearch2) {
-		this.iconSearch = iconSearch2;
-	}
-
-	void setOnSearchListener(SearchTrigger searchTrigger) {
-		this.onSearchListener = searchTrigger;
-	}
-
-	String getTopBarStyleName() {
-		return TopBarStyleName;
-	}
-
-	void setTopBarStyleName(String topBarStyleName) {
-		TopBarStyleName = topBarStyleName;
 	}
 
 	String getNavigatorStyleName() {
@@ -287,30 +217,6 @@ public class EasyAppMainView extends VerticalLayout  {
 
 	void setMainViewStyle(String mainViewStyle) {
 		this.mainViewStyle = mainViewStyle;
-	}
-
-	boolean isSearchCapabilities() {
-		return searchCapabilities;
-	}
-
-	void setSearchCapabilities(boolean searchCapabilities) {
-		this.searchCapabilities = searchCapabilities;
-	}
-
-	boolean isBreadcrumb() {
-		return breadcrumb;
-	}
-
-	void setBreadcrumb(boolean breadcrumb) {
-		this.breadcrumb = breadcrumb;
-	}
-
-	boolean isLogingCapabilities() {
-		return logingCapabilities;
-	}
-
-	void setLogingCapabilities(boolean logingCapabilities) {
-		this.logingCapabilities = logingCapabilities;
 	}
 
 	Image getTopBarIcon() {
@@ -361,30 +267,9 @@ public class EasyAppMainView extends VerticalLayout  {
 		downSplitPanel.setSizeFull();
 		downSplitPanel.setLocked(true);
 
-		if (topBarb) {
-			topBar = buildTopBar();
-			if (getTopBarStyleName() != null) {
-				topBar.setStyleName(getTopBarStyleName());
-			}
-			VerticalSplitPanel mainComponent = new VerticalSplitPanel();
-			mainComponent.setSecondComponent(downSplitPanel);
-			mainComponent.setFirstComponent(topBar);
-			mainComponent.setSplitPosition(45, Unit.PIXELS);
-			mainComponent.setSizeFull();
-			mainComponent.setLocked(true);
-			addComponent(mainComponent);
-			addNavigationTrigger( (clazz) -> resfreshBreabCrumb());
-
-		}
-		else {
-			addComponent(downSplitPanel);
-		}
+		addComponent(downSplitPanel);
 
 		setSizeFull();
-
-		//		if (getToolBar() != null) {
-		//			manageToolBar();
-		//		}
 	}
 
 	private void initCss() {
@@ -481,27 +366,6 @@ public class EasyAppMainView extends VerticalLayout  {
 		horizontalLayoutTopBar.setComponentAlignment(lefthHorizontalBar, Alignment.MIDDLE_LEFT);
 
 		toolsLayout = new HorizontalLayout();
-		if (searchCapabilities) {
-			TextField search = new TextField();
-			addComponent(search);
-			toolsLayout.addComponent(search);
-			Button searchButton = new Button();
-			if (iconSearch == null) {
-				searchButton.setCaption("Search");
-			}
-			else {
-				searchButton.setIcon(iconSearch);
-			}
-			toolsLayout.addComponent(searchButton);
-			searchButton.addClickListener((event) -> onSearchListener.searchTriggered(search.getValue()));
-		}
-
-		if (logingCapabilities) {
-			if (loginText == null) {
-				loginText = "login";
-			}
-			manageLoginButton();
-		}
 
 		horizontalLayoutTopBar.addComponent(toolsLayout);
 		horizontalLayoutTopBar.setComponentAlignment(toolsLayout,  Alignment.MIDDLE_RIGHT);
@@ -518,32 +382,6 @@ public class EasyAppMainView extends VerticalLayout  {
 		}
 
 		return horizontalLayoutTopBar;
-	}
-
-	private void manageLoginButton() {
-		toolsLoginButton = new Button(loggingTextButton);
-		Button innerLoginButton = buidInnerLoginButton(toolsLayout);
-		loginPopup = buildLoginPopup(innerLoginButton);
-
-		manageLogoutBehavior(logoutButton, toolsLayout);
-
-		toolsLayout.addComponents(toolsLoginButton, loginPopup);
-		toolsLoginButton.addClickListener(click -> loginPopup.setPopupVisible(true));
-	}
-
-	private void manageLogoutBehavior(Button logoutButton, HorizontalLayout toolsLayout) {
-		logoutButton.addClickListener(new ClickListener() {
-			@Override
-			public void buttonClick(ClickEvent event) {
-				toolsLayout.removeComponent(userLabel);
-				toolsLayout.removeComponent(logoutButton);
-				manageLoginButton();
-				if (logoutTrigger != null) {
-					logoutTrigger.logoutTriggered();
-				}
-			}
-		});
-
 	}
 
 	private UserPasswordPopupView buildLoginPopup(Button innerLoginButton) {
@@ -584,39 +422,7 @@ public class EasyAppMainView extends VerticalLayout  {
 		return popup;
 	}
 
-	private Button buidInnerLoginButton(HorizontalLayout toolsLayout) {
-		Button loginInnerButton = new Button(loggingTextButton);
-		logoutButton = new Button(logOutTextButton);
-		loginInnerButton.addClickListener(new ClickListener() {
-			@Override
-			public void buttonClick(ClickEvent event) {
-				if (loginTrigger != null) {
-					String userLogged = loginTrigger.loginTriggered(loginPopup.getUserTextField().getValue(), 
-							loginPopup.getPasswordField().getValue());
-					if (userLogged != null) {
-						loginPopup.setVisible(false);
-						toolsLayout.removeComponent(toolsLoginButton);
-
-						userLabel = new Label(userLogged);
-						if (userLabelStyle != null) {
-							userLabel.setStyleName(userLabelStyle);
-						}
-
-						toolsLayout.addComponent(userLabel);
-						toolsLayout.addComponent(logoutButton);
-						toolsLayout.setComponentAlignment(userLabel, Alignment.MIDDLE_CENTER);
-
-					}
-					else {
-						loginPopup.markAsError(loginErrorText, styleErrorText);
-						loginPopup.setVisible(true);
-					}
-				}
-			}
-		});
-		return loginInnerButton;
-	}
-
+	
 	private ComponentContainer buildMainArea() {
 
 		VerticalLayout verticalLayout = new VerticalLayout();
@@ -776,22 +582,8 @@ public class EasyAppMainView extends VerticalLayout  {
 		return icon;
 	}
 
-	public void setLoginTrigger(LoginTrigger loginTrigger) {
-		this.loginTrigger = loginTrigger;
-
-	}
-
-	public void setLogoutTrigger(LogoutTrigger logoutTrigger) {
-		this.logoutTrigger = logoutTrigger;
-	}
-
 	public void setToolbar(boolean toolBar) {
 		this.toolBarb = toolBar;
-
-	}
-
-	public void setTopBar(boolean topBar) {
-		this.topBarb = topBar;
 
 	}
 
@@ -803,18 +595,10 @@ public class EasyAppMainView extends VerticalLayout  {
 		if (targetUI != null) {
 			targetUI.access(runnable);
 		} 
-
-		//		targetUI.access( ()  -> 
-		//		{
-		//			try {
-		//				//VaadinSession.getCurrent().getLockInstance().lock();
-		//				//Thread.sleep(200);
-		//				runnable.run();
-		//				//targetUI.push();
-		//			} catch (InterruptedException e) {
-		//				logger.error(MessageBuilder.getEasyAppMessage("Unable to get the view map"), e);
-		//				Thread.currentThread().interrupt();
-		//			}
-		//		});
+	}
+	
+	@Override
+	public ActionContainer buildActionContainer() {
+		return actionContainer;
 	}
 }

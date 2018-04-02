@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -56,6 +57,7 @@ public class AnnotationScanner {
 	}
 
 	private Map<String, TreeWithIcon> treeMap = new LinkedHashMap<>();
+	private Map<RootView, List<NavButtonWithIcon>> navButtonMap = new LinkedHashMap<>();
 	private Map<String, Component> viewMap = new LinkedHashMap<>();
 	private String buttonLinkStyle;
 
@@ -100,6 +102,36 @@ public class AnnotationScanner {
 			
 			Map<String, String> rootViewNameByClassName = new LinkedHashMap<>();
 			
+			for (RootView rootView : rootViews) {
+				if (treeMap.get(rootView.viewName()) == null) {
+					List<NavButtonWithIcon> listnavButtonMap = new LinkedList<>();
+					navButtonMap.put(rootView, listnavButtonMap);
+				}
+			}
+			
+			
+			Set<Class<?>> annotatedContentView = reflections.getTypesAnnotatedWith(ContentView.class);
+			//first iteration to order items
+			for (Class<?> classTarget : annotatedContentView) {
+				if (EasyAppLayout.class.isAssignableFrom(classTarget)) {
+					Annotation[] annotations = classTarget.getDeclaredAnnotations();
+					for (Annotation annotation : annotations) {
+						if (annotation instanceof ContentView) {
+							ContentView contentView = (ContentView) annotation;
+							List<NavButtonWithIcon> listNavButton = navButtonMap.get(contentView.rootViewParent());
+							if (listNavButton!=null) 
+							{
+								NavButtonWithIcon navButton = new NavButtonWithIcon(contentView.viewName(), contentView.icon(), contentView.bundle());
+								listNavButton.add(navButton);
+							}
+						}
+					}
+				}
+			}
+
+			
+			
+			
 			//build the treeMap
 			for (RootView rootView : rootViews) {
 				if (treeMap.get(rootView.viewName()) == null) {
@@ -133,7 +165,7 @@ public class AnnotationScanner {
 
 			List<ContentViewWithTargetClass> ContentViewWithTargetClasses = new ArrayList<>();
 
-			Set<Class<?>> annotatedContentView = reflections.getTypesAnnotatedWith(ContentView.class);
+			//Set<Class<?>> annotatedContentView = reflections.getTypesAnnotatedWith(ContentView.class);
 			//first iteration to order items
 			for (Class<?> classTarget : annotatedContentView) {
 				if (EasyAppLayout.class.isAssignableFrom(classTarget)) {

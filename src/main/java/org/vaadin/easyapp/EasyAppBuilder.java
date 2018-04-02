@@ -5,6 +5,8 @@ import java.util.List;
 import org.vaadin.easyapp.event.LoginTrigger;
 import org.vaadin.easyapp.event.LogoutTrigger;
 import org.vaadin.easyapp.event.SearchTrigger;
+import org.vaadin.easyapp.ui.ViewWithToolBar;
+import org.vaadin.easyapp.util.ActionContainer;
 
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Image;
@@ -13,14 +15,28 @@ import com.vaadin.ui.UI;
 public class EasyAppBuilder {
 	
 	public EasyAppBuilder(List<String> packages) {
-		mainView = new EasyAppMainView(packages);
+		EasyAppMainView easyAppMainView = new EasyAppMainView(packages);
+		this.mainView = easyAppMainView;
+		this.viewWithToolBar = new ViewWithToolBar();
 	}
 	
+	private ViewWithToolBar viewWithToolBar;
 	private EasyAppMainView mainView;
 	
-	public EasyAppMainView build(UI targetUI) {
+	public ViewWithToolBar build(UI targetUI) {
 		mainView.build(targetUI);
-		return mainView;
+		viewWithToolBar.buildComponents(mainView);
+		return viewWithToolBar;
+	}
+	
+	public EasyAppBuilder withActionContainer(ActionContainer actionContainer) {
+		mainView.setActionContainer(actionContainer);
+		return this;
+	}
+	
+	public EasyAppBuilder withToolBarStyle(String style) {
+		viewWithToolBar.setToolBarStyle(style);
+		return this;
 	}
 	
 	public EasyAppBuilder withTopBarIcon(Image topBarIcon) {
@@ -28,38 +44,8 @@ public class EasyAppBuilder {
 		return this;
 	}
 	
-	public EasyAppBuilder withTopBar() {
-		mainView.setTopBar(true);
-		return this;
-	}
-	
 	public EasyAppBuilder withNavigationIcon(Image topBarIcon) {
 		mainView.setNavigationIcon(topBarIcon);
-		return this;
-	}
-	
-	
-	public EasyAppBuilder withLogingCapabilities(LoginTrigger loginTrigger, LogoutTrigger logoutTrigger) {
-		mainView.setLogingCapabilities(true);
-		mainView.setLoginTrigger(loginTrigger);
-		mainView.setLogoutTrigger(logoutTrigger);
-		return this;
-	}
-	
-	public EasyAppBuilder withSearchCapabilities(SearchTrigger searchTrigger, Resource iconSearch) {
-		mainView.setSearchCapabilities(true);
-		mainView.setOnSearchListener(searchTrigger);
-		mainView.setIconSearch(iconSearch);
-		return this;
-	}
-	
-	public EasyAppBuilder withBreadcrumb() {
-		mainView.setBreadcrumb(true);
-		return this;
-	}
-	
-	public EasyAppBuilder withTopBarStyle(String style) {
-		mainView.setTopBarStyleName(style);
 		return this;
 	}
 	
@@ -85,21 +71,6 @@ public class EasyAppBuilder {
 
 	public EasyAppBuilder withLoginCaption(String loginCaption) {
 		mainView.setLoginCaption(loginCaption);
-		return this;
-	}
-
-	public EasyAppBuilder withLoginTextStyle(String styleName) {
-		mainView.setUserLabelStyle(styleName);
-		return this;
-	}
-
-	public EasyAppBuilder withLoginErroText(String loginErrorText) {
-		mainView.setLoginErrorText(loginErrorText);
-		return this;
-	}
-
-	public EasyAppBuilder withLoginErrotLabelStyle(String styleErrorText) {
-		mainView.setStyleErrorText(styleErrorText);
 		return this;
 	}
 

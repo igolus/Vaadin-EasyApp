@@ -13,6 +13,10 @@ public class NavButtonWithIcon {
 		this.icon = icon;
 
 	}
+
+	public NavButtonWithIcon(String viewName, String icon2, String bundle) {
+		// TODO Auto-generated constructor stub
+	}
 	
 	
 }
