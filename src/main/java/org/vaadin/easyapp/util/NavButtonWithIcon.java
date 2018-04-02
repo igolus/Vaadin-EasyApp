@@ -13,24 +13,27 @@ public class NavButtonWithIcon extends Button {
 	private ContentView contentView;
 	private Navigator navigator;
 	private AnnotationScanner scanner;
+	private Class<?> targetClass;
 
 
-	public NavButtonWithIcon(ContentView contentView, EasyAppMainView easyAppMainView, Navigator navigator, AnnotationScanner scanner) {
+	public NavButtonWithIcon(Class<?> targetClass, ContentView contentView, EasyAppMainView easyAppMainView, 
+			Navigator navigator, AnnotationScanner scanner) {
 		super(EasyAppMainView.getBundleValue(contentView.viewName()));
 		this.scanner = scanner;
+		this.targetClass = targetClass;
 		this.contentView = contentView;
 		this.navigator = navigator;
 		this.easyAppMainView = easyAppMainView;
-		setStyleName(easyAppMainView.getNavButtonStyle());
-		this.caption = caption;
+		setStyleNav();
+		this.caption = getCaption();
 		addClickListener(this::navCliked);
 	}
 	
 	public void navCliked(ClickEvent event) {
-		navigator.navigateTo(contentView.getClass().toString());
-		setStyleName(easyAppMainView.getSelectedStyle());
+		navigator.navigateTo(targetClass.toString());
+		setStyleSelected();
 		if (scanner.getSelectedNav() != null) {
-			scanner.getSelectedNav().setStyleName(easyAppMainView.getNavButtonStyle());
+			scanner.getSelectedNav().setStyleNav();
 		}
 		scanner.setSelectedNav(this);
 	}
@@ -40,11 +43,11 @@ public class NavButtonWithIcon extends Button {
 	}
 	
 	public void setStyleNav() {
-		setStyleName(easyAppMainView.getNavButtonStyle());
+		setStyleName(easyAppMainView.getMainNavigationButtonStyle());
 	}
 	
 	public void setStyleSelected() {
-		setStyleName(easyAppMainView.getSelectedStyle());
+		setStyleName(easyAppMainView.getSelectedNavigationButtonStyle());
 	}
 	
 }

@@ -122,7 +122,7 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 	private String navigatorStyleName;
 
-	private String mainViewStyle;
+	private String mainNavigationButtonStyle;
 
 	private String navButtonStyle;
 
@@ -176,7 +176,7 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 //	private String toolBarStyle;
 
-	private String selectedStyle;
+	private String selecteNavigationButtonStyle;
 
 	private static ResourceBundle bundle;
 
@@ -217,12 +217,8 @@ public class EasyAppMainView extends EasyAppLayout  {
 		this.navigatorStyleName = navigatorStyleName;
 	}
 
-	String getMainViewStyle() {
-		return mainViewStyle;
-	}
-
-	void setMainViewStyle(String mainViewStyle) {
-		this.mainViewStyle = mainViewStyle;
+	public String getMainNavigationButtonStyle() {
+		return mainNavigationButtonStyle;
 	}
 
 	Image getTopBarIcon() {
@@ -258,8 +254,8 @@ public class EasyAppMainView extends EasyAppLayout  {
 		downSplitPanel = new HorizontalSplitPanel();
 
 		mainArea = buildMainArea();
-		if (getMainViewStyle() != null) {
-			mainArea.setStyleName(getMainViewStyle());
+		if (getMainNavigationButtonStyle() != null) {
+			mainArea.setStyleName(getMainNavigationButtonStyle());
 		}
 
 		navigationPanel = buildNavigation(mainArea);
@@ -459,8 +455,8 @@ public class EasyAppMainView extends EasyAppLayout  {
 //			Resource icon = EasyAppMainView.getIcon(treeWithIcon.getIcon());
 //			accordion.addTab(treeWithIcon.getTree(), name, icon);
 //		});
-//		accordion.setSizeFull();
-//		navigationLayout.addComponent(accordion);
+		accordion.setSizeFull();
+		navigationLayout.addComponent(accordion);
 //
 //		CSSInject css = new CSSInject(getTargetUI());
 //
@@ -597,16 +593,16 @@ public class EasyAppMainView extends EasyAppLayout  {
 		return actionContainer;
 	}
 
-	public void setMainStyle(String mainStyle) {
-		this.mainViewStyle = mainStyle;
+	public void setMainNavigationButtonStyle(String mainStyle) {
+		this.mainNavigationButtonStyle = mainStyle;
 	}
 	
-	public void setSelectedStyle(String selectedStyle) {
-		this.selectedStyle = selectedStyle;
+	public void setSelectedNavigationButtonStyle(String selectedStyle) {
+		this.selecteNavigationButtonStyle = selectedStyle;
 	}
 
-	public String getSelectedStyle() {
-		return selectedStyle;
+	public String getSelectedNavigationButtonStyle() {
+		return selecteNavigationButtonStyle;
 	}
 
 	public void setResourceBundle(ResourceBundle bundle) {

@@ -55,11 +55,6 @@ public class EasyAppBuilder {
 		return this;
 	}
 	
-	public EasyAppBuilder withMainViewStyle(String style) {
-		mainView.setMainViewStyle(style);
-		return this;
-	}
-
 //	public EasyAppBuilder withLogingUserText(String loggingUserText) {
 //		mainView.setLoggingUserText(loggingUserText);
 //		return this;
@@ -90,9 +85,9 @@ public class EasyAppBuilder {
 //		return this;
 //	}
 
-	public void withNavigationStlyle(String mainStyle, String selectedStyle) {
-		mainView.setMainStyle(mainStyle);
-		mainView.setSelectedStyle(selectedStyle);
+	public void withNavigationStyle(String mainStyle, String selectedStyle) {
+		mainView.setMainNavigationButtonStyle(mainStyle);
+		mainView.setSelectedNavigationButtonStyle(selectedStyle);
 	}
 
 	public void withRessourceBundle(ResourceBundle bundle) {

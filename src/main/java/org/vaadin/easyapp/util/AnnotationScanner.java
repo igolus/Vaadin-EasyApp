@@ -87,6 +87,18 @@ public class AnnotationScanner {
 		this.selectedNav = selectedNav;
 	}
 	
+	public RootView getRootViewFromClass (Class<?> classTarget) 
+	{
+		Annotation[] annotations = classTarget.getDeclaredAnnotations();
+		for (Annotation annotation : annotations) {
+			if (annotation instanceof RootView) {
+				RootView rootView = (RootView) annotation;
+				return rootView;
+			}
+		}
+		return null;
+	}
+	
 
 	public void init(List<String> packagesToScan)
 			throws InstantiationException, IllegalAccessException {
@@ -98,13 +110,10 @@ public class AnnotationScanner {
 			//first iteration to gather root Views
 			Set<Class<?>> annotatedRootView = reflections.getTypesAnnotatedWith(RootView.class);
 			for (Class<?> classTarget : annotatedRootView) {
-				Annotation[] annotations = classTarget.getDeclaredAnnotations();
-				for (Annotation annotation : annotations) {
-					if (annotation instanceof RootView) {
-						RootView rootView = (RootView) annotation;
-						rootViews.add(rootView);
-						classNameByRootView.put(rootView, classTarget.toString());
-					}
+				RootView rootView = getRootViewFromClass(classTarget);
+				if (rootView != null) {
+					rootViews.add(rootView);
+					classNameByRootView.put(rootView, classTarget.toString());
 				}
 			}
 
@@ -123,6 +132,7 @@ public class AnnotationScanner {
 				}
 			}
 			
+			boolean hasHomeView = false;
 			
 			Set<Class<?>> annotatedContentView = reflections.getTypesAnnotatedWith(ContentView.class);
 			//first iteration to order items
@@ -132,15 +142,25 @@ public class AnnotationScanner {
 					for (Annotation annotation : annotations) {
 						if (annotation instanceof ContentView) {
 							ContentView contentView = (ContentView) annotation;
-							List<NavButtonWithIcon> listNavButton = navButtonMap.get(contentView.rootViewParent());
+							Class<?> rootViewParent = contentView.rootViewParent();
+							RootView rootView = getRootViewFromClass(rootViewParent);
+							
+							List<NavButtonWithIcon> listNavButton = navButtonMap.get(rootView);
 							if (listNavButton!=null) 
 							{
-								NavButtonWithIcon navButton = new NavButtonWithIcon(contentView, easyAppMainView, navigator, this);
-								Object view = contentView.getClass().newInstance();
+								
+								Object view = classTarget.newInstance();
 								ViewWithToolBar viewWithToolBar = new ViewWithToolBar( (EasyAppLayout) view);
-								navButtonByViewName.put(contentView.getClass().toString(), navButton);
-								navigator.addView(contentView.getClass().toString(), (View) viewWithToolBar);
+								NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView, easyAppMainView, navigator, this);
+								
+								
+								navButtonByViewName.put(classTarget.toString(), navButton);
+								navigator.addView(classTarget.toString(), (View) viewWithToolBar);
 								listNavButton.add(navButton);
+								if (contentView.homeView()) {
+									navigator.addView("" , viewWithToolBar);
+									hasHomeView = true;
+								}
 							}
 						}
 					}
@@ -213,7 +233,7 @@ public class AnnotationScanner {
 //
 //			customTreeItemByClassName = new HashMap<>();
 //
-//			boolean hasHomeView = false;
+
 //			
 //			
 //			
@@ -283,10 +303,10 @@ public class AnnotationScanner {
 //			
 //			
 //			
-//			if (!hasHomeView) {
-//				navigator.addView("" , new DefaultView());
-//				hasHomeView = true;
-//			}
+			if (!hasHomeView) {
+				navigator.addView("" , new DefaultView());
+				hasHomeView = true;
+			}
 
 		}
 	}
