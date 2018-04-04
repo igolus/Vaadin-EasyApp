@@ -3,13 +3,9 @@ package org.vaadin.easyapp;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.vaadin.easyapp.event.LoginTrigger;
-import org.vaadin.easyapp.event.LogoutTrigger;
-import org.vaadin.easyapp.event.SearchTrigger;
 import org.vaadin.easyapp.ui.ViewWithToolBar;
 import org.vaadin.easyapp.util.ActionContainer;
 
-import com.vaadin.server.Resource;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.UI;
 
@@ -55,36 +51,6 @@ public class EasyAppBuilder {
 		return this;
 	}
 	
-//	public EasyAppBuilder withLogingUserText(String loggingUserText) {
-//		mainView.setLoggingUserText(loggingUserText);
-//		return this;
-//	}
-//
-//	public EasyAppBuilder withLogingPassWordText(String loggingPassWordText) {
-//		mainView.setLoggingPassWordText(loggingPassWordText);
-//		return this;
-//	}
-//
-//	public EasyAppBuilder withLoginCaption(String loginCaption) {
-//		mainView.setLoginCaption(loginCaption);
-//		return this;
-//	}
-//
-//	public EasyAppBuilder withBreadcrumbStyle(String breadcrumbLabelStyle) {
-//		mainView.setBreadcrumbLabelStyle(breadcrumbLabelStyle);
-//		return this;
-//	}
-//
-//	public EasyAppBuilder withButtonLinkStyleInBreadCrumb(String buttonStyle) {
-//		mainView.setBreadcrumbLabelStyle(buttonStyle);
-//		return this;
-//	}
-//	
-//	public EasyAppBuilder withToolBar() {
-//		mainView.setToolbar(true);
-//		return this;
-//	}
-
 	public void withNavigationStyle(String mainStyle, String selectedStyle) {
 		mainView.setMainNavigationButtonStyle(mainStyle);
 		EasyAppMainView.setSelectedNavigationButtonStyle(selectedStyle);

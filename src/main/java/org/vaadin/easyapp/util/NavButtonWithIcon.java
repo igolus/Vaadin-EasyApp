@@ -24,7 +24,9 @@ public class NavButtonWithIcon extends Button {
 		this.contentView = contentView;
 		this.navigator = navigator;
 		this.easyAppMainView = easyAppMainView;
+		setIcon(EasyAppMainView.getIcon(contentView.icon()));
 		setStyleNav();
+		
 		this.caption = getCaption();
 		addClickListener(this::navCliked);
 	}

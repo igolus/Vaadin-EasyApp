@@ -2,7 +2,6 @@ package org.vaadin.easyapp.ui;
 
 import java.util.List;
 
-import org.vaadin.easyapp.EasyAppMainView;
 import org.vaadin.easyapp.util.ActionContainer;
 import org.vaadin.easyapp.util.ButtonWithCheck;
 import org.vaadin.easyapp.util.EasyAppLayout;
@@ -55,7 +54,7 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 		leftLayout = new HorizontalLayout();
 
 
-		if (listImages != null && listImages.size() > 0) {
+		if (listImages != null && !listImages.isEmpty()) {
 			for (Image image : listImages) {
 				leftLayout.addComponent(image);
 			}
@@ -78,6 +77,7 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 			search.setStyleName(actionContainer.getStyleName());
 			searchLayout.addComponent(search);
 			Button searchButton = new Button();
+			searchButton.setStyleName(actionContainer.getStyleName());
 			searchButton.setHeight("100%");
 			searchLayout.addComponent(searchButton);
 			searchButton.setIcon(VaadinIcons.SEARCH);
@@ -86,32 +86,29 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 		}
 
 
-		if (gridLayout != null) {
-			gridLayout.setWidth(100,Unit.PERCENTAGE);
-			gridLayout.setMargin(false);
+		gridLayout.setWidth(100,Unit.PERCENTAGE);
+		gridLayout.setMargin(false);
 
-			if (leftLayout != null) {
-				gridLayout.addComponent(leftLayout, 0, 0);
-				gridLayout.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
-			}
-			if (searchLayout != null) {
-				gridLayout.addComponent(searchLayout, 1, 0);
-				gridLayout.setComponentAlignment(searchLayout, Alignment.MIDDLE_RIGHT);
-			}
-			if (actionContainer != null && actionContainer.getStyleName() != null) {		
-				gridLayout.setStyleName(actionContainer.getStyleName());
-				addComponent(gridLayout);
-			}
-			if (contentStyle != null) {
-				innerComponent.setStyleName(contentStyle);
-			}
-			innerComponent.setSizeFull();
-			addComponent(innerComponent);
-			//gridLayout.set
-			setSizeFull();
-			setExpandRatio(innerComponent, 1.0f);
+		if (leftLayout != null) {
+			gridLayout.addComponent(leftLayout, 0, 0);
+			gridLayout.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
 		}
-		//innerComponent.refreshClickable();
+		if (searchLayout != null) {
+			gridLayout.addComponent(searchLayout, 1, 0);
+			gridLayout.setComponentAlignment(searchLayout, Alignment.MIDDLE_RIGHT);
+		}
+		if (actionContainer != null && actionContainer.getStyleName() != null) {		
+			gridLayout.setStyleName(actionContainer.getStyleName());
+			addComponent(gridLayout);
+		}
+		if (contentStyle != null) {
+			innerComponent.setStyleName(contentStyle);
+		}
+		innerComponent.setSizeFull();
+		addComponent(innerComponent);
+		setSizeFull();
+		setExpandRatio(innerComponent, 1.0f);
+
 	}
 
 	public EasyAppLayout getInnerComponent() {

@@ -1,7 +1,5 @@
 package org.vaadin.easyapp.util;
 
-import java.util.ResourceBundle;
-
 import org.vaadin.easyapp.EasyAppMainView;
 import org.vaadin.easyapp.event.SearchTrigger;
 
@@ -23,7 +21,6 @@ public class ActionContainerBuilder {
 			ButtonClickable clickable, ClickListener listener) {
 		String buttonName = AnnotationScanner.getBundleValue(bundleName, bundleValue);
 		Button button = new Button(buttonName);
-		//button.setEnabled(false);
 		if (description != null) {
 			button.setDescription(AnnotationScanner.getBundleValue(bundleName, description));
 		} 
