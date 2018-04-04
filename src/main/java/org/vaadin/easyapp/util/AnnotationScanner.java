@@ -150,9 +150,10 @@ public class AnnotationScanner {
 							{
 								
 								Object view = classTarget.newInstance();
-								ViewWithToolBar viewWithToolBar = new ViewWithToolBar( (EasyAppLayout) view);
-								NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView, easyAppMainView, navigator, this);
-								
+								ViewWithToolBar viewWithToolBar = new ViewWithToolBar();
+								NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView,  easyAppMainView, navigator, this);
+								viewWithToolBar.setContentStyle(EasyAppMainView.getContentStyle());
+								viewWithToolBar.buildComponents((EasyAppLayout) view);
 								
 								navButtonByViewName.put(classTarget.toString(), navButton);
 								navigator.addView(classTarget.toString(), (View) viewWithToolBar);

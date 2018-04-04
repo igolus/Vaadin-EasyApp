@@ -87,11 +87,16 @@ public class EasyAppBuilder {
 
 	public void withNavigationStyle(String mainStyle, String selectedStyle) {
 		mainView.setMainNavigationButtonStyle(mainStyle);
-		mainView.setSelectedNavigationButtonStyle(selectedStyle);
+		EasyAppMainView.setSelectedNavigationButtonStyle(selectedStyle);
 	}
 
 	public void withRessourceBundle(ResourceBundle bundle) {
-		mainView.setResourceBundle(bundle);
+		EasyAppMainView.setResourceBundle(bundle);
+		
+	}
+
+	public void withContentStyle(String contentStyle) {
+		EasyAppMainView.setContentStyle(contentStyle);
 		
 	}
 

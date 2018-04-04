@@ -41,10 +41,6 @@ public @interface ContentView {
 	 */
 	Class<?> rootViewParent() default EasyAppMainView.class;
 
-	/**
-	 * Parent view 
-	 */
-	Class<?> componentParent() default EasyAppMainView.class;
 }
 
 

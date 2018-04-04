@@ -44,7 +44,7 @@ public class ActionContainerBuilder {
 		return this;
 	}
 	
-	public ActionContainerBuilder withStyleNam(String styleName) {
+	public ActionContainerBuilder withStyleName(String styleName) {
 		actionContainer.setStyleName(styleName);
 		return this;
 	}

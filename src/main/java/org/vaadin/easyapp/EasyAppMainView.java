@@ -176,7 +176,9 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 //	private String toolBarStyle;
 
-	private String selecteNavigationButtonStyle;
+	private static String selecteNavigationButtonStyle;
+
+	private static String contentStyle;
 
 	private static ResourceBundle bundle;
 
@@ -426,8 +428,6 @@ public class EasyAppMainView extends EasyAppLayout  {
 		parentLayout.setComponentAlignment(collapseButton, Alignment.MIDDLE_RIGHT);
 		parentLayout.setExpandRatio(navigationLayout, 1.0f);
 
-
-
 		buildAccordion();
 		return parentLayout;
 	}
@@ -573,11 +573,6 @@ public class EasyAppMainView extends EasyAppLayout  {
 		return value;
 	}
 
-//	public void setToolbar(boolean toolBar) {
-//		this.toolBarb = toolBar;
-//
-//	}
-
 	public void setNavigationIcon(Image navigationIcon) {
 		this.navigationIcon = navigationIcon;
 	}
@@ -597,20 +592,28 @@ public class EasyAppMainView extends EasyAppLayout  {
 		this.mainNavigationButtonStyle = mainStyle;
 	}
 	
-	public void setSelectedNavigationButtonStyle(String selectedStyle) {
-		this.selecteNavigationButtonStyle = selectedStyle;
+	public static void setSelectedNavigationButtonStyle(String selectedStyle) {
+		EasyAppMainView.selecteNavigationButtonStyle = selectedStyle;
 	}
 
-	public String getSelectedNavigationButtonStyle() {
+	public static String getSelectedNavigationButtonStyle() {
 		return selecteNavigationButtonStyle;
 	}
 
-	public void setResourceBundle(ResourceBundle bundle) {
-		this.bundle = bundle;
+	public static void setResourceBundle(ResourceBundle bundle) {
+		EasyAppMainView.bundle = bundle;
 	}
 
 	public static ResourceBundle getBundle() {
 		return bundle;
+	}
+
+	public static void setContentStyle(String contentStyle) {
+		EasyAppMainView.contentStyle = contentStyle;
+	}
+
+	public static String getContentStyle() {
+		return EasyAppMainView.contentStyle;
 	}
 	
 	
