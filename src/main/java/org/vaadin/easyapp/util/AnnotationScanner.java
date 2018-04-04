@@ -124,7 +124,16 @@ public class AnnotationScanner {
 							if (listNavButton!=null) 
 							{
 								
+								try {
+									
+								}
+								catch (Exception e) {
+									e.printStackTrace();
+								}
 								Object view = classTarget.newInstance();
+								
+								
+								
 								ViewWithToolBar viewWithToolBar = new ViewWithToolBar();
 								NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView,  easyAppMainView, navigator, this);
 								viewWithToolBar.setContentStyle(EasyAppMainView.getContentStyle());
@@ -152,7 +161,6 @@ public class AnnotationScanner {
 
 			if (!hasHomeView) {
 				navigator.addView("" , new DefaultView());
-				hasHomeView = true;
 			}
 
 		}

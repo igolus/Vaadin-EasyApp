@@ -51,48 +51,21 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 			listImages = actionContainer.getListImages();
 			listButtonWithCheck = actionContainer.getListButtonWithCheck();
 		}
+		
+		
 		leftLayout = new HorizontalLayout();
 
 
-		if (listImages != null && !listImages.isEmpty()) {
-			for (Image image : listImages) {
-				leftLayout.addComponent(image);
-			}
-		}
-
-		if (listButtonWithCheck != null && listButtonWithCheck.size() > 0) {
-			for (ButtonWithCheck buttonWithCheck : listButtonWithCheck) {
-				buttonWithCheck.getButton().setStyleName(actionContainer.getStyleName());
-				buttonWithCheck.getButton().setHeight("100%");
-				leftLayout.addComponent(buttonWithCheck.getButton());
-			}
-		}
-
-
-		if (actionContainer != null && actionContainer.getSearchTrigger() != null) {
-			searchLayout = new HorizontalLayout();
-			searchLayout.setStyleName(actionContainer.getStyleName());
-			TextField search = new TextField();
-			search.setHeight("100%");
-			search.setStyleName(actionContainer.getStyleName());
-			searchLayout.addComponent(search);
-			Button searchButton = new Button();
-			searchButton.setStyleName(actionContainer.getStyleName());
-			searchButton.setHeight("100%");
-			searchLayout.addComponent(searchButton);
-			searchButton.setIcon(VaadinIcons.SEARCH);
-			searchButton.setStyleName(actionContainer.getStyleName());
-			searchButton.addClickListener((event) -> actionContainer.getSearchTrigger().searchTriggered(search.getValue()));
-		}
+		fillImages(listImages);
+		fillButtons(actionContainer, listButtonWithCheck);
+		fillSearchComponents(actionContainer);
 
 
 		gridLayout.setWidth(100,Unit.PERCENTAGE);
 		gridLayout.setMargin(false);
 
-		if (leftLayout != null) {
-			gridLayout.addComponent(leftLayout, 0, 0);
-			gridLayout.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
-		}
+		gridLayout.addComponent(leftLayout, 0, 0);
+		gridLayout.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
 		if (searchLayout != null) {
 			gridLayout.addComponent(searchLayout, 1, 0);
 			gridLayout.setComponentAlignment(searchLayout, Alignment.MIDDLE_RIGHT);
@@ -111,8 +84,43 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 
 	}
 
+	private void fillSearchComponents(ActionContainer actionContainer) {
+		if (actionContainer != null && actionContainer.getSearchTrigger() != null) {
+			searchLayout = new HorizontalLayout();
+			searchLayout.setStyleName(actionContainer.getStyleName());
+			TextField search = new TextField();
+			search.setHeight("100%");
+			search.setStyleName(actionContainer.getStyleName());
+			searchLayout.addComponent(search);
+			Button searchButton = new Button();
+			searchButton.setStyleName(actionContainer.getStyleName());
+			searchButton.setHeight("100%");
+			searchLayout.addComponent(searchButton);
+			searchButton.setIcon(VaadinIcons.SEARCH);
+			searchButton.setStyleName(actionContainer.getStyleName());
+			searchButton.addClickListener(event -> actionContainer.getSearchTrigger().searchTriggered(search.getValue()));
+		}
+	}
+
+	private void fillButtons(ActionContainer actionContainer, List<ButtonWithCheck> listButtonWithCheck) {
+		if (listButtonWithCheck != null && !listButtonWithCheck.isEmpty()) {
+			for (ButtonWithCheck buttonWithCheck : listButtonWithCheck) {
+				buttonWithCheck.getButton().setStyleName(actionContainer.getStyleName());
+				buttonWithCheck.getButton().setHeight("100%");
+				leftLayout.addComponent(buttonWithCheck.getButton());
+			}
+		}
+	}
+
+	private void fillImages(List<Image> listImages) {
+		if (listImages != null && !listImages.isEmpty()) {
+			for (Image image : listImages) {
+				leftLayout.addComponent(image);
+			}
+		}
+	}
+
 	public EasyAppLayout getInnerComponent() {
-		// TODO Auto-generated method stub
 		return innerComponent;
 	}
 

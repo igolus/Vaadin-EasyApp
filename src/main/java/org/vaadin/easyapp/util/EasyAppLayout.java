@@ -10,7 +10,6 @@ public abstract class EasyAppLayout extends VerticalLayout {
 
 	public EasyAppLayout() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public void setActionContainer(ActionContainer actionContainer) {
@@ -43,7 +42,7 @@ public abstract class EasyAppLayout extends VerticalLayout {
 		}
 	}
 
-
+	
 
 
 }

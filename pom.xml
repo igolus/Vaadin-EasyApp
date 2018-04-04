@@ -149,7 +149,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Implementation-Version>${pom.version}</Implementation-Version>
+							<Implementation-Version>${project.version}</Implementation-Version>
 							<Implementation-Title>${project.name}</Implementation-Title>
 							<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
 							<License-title>${Vaadin-License-Title}</License-title>

@@ -27,7 +27,7 @@ public class ActionContainerBuilder {
 		
 		button.setIcon(icon);
 		if (clickable == null) {
-			clickable = () -> {return true;}; 
+			clickable = () -> {return true;};
 		}
 		actionContainer.addButtonWithCheck(new ButtonWithCheck(button, clickable));
 		button.addClickListener(listener);

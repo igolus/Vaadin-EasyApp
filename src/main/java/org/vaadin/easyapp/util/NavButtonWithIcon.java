@@ -8,11 +8,15 @@ import com.vaadin.ui.Button;
 
 public class NavButtonWithIcon extends Button {
 	
-	private String caption;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1797024704407653616L;
+	
 	private EasyAppMainView easyAppMainView;
-	private ContentView contentView;
+	private transient ContentView contentView;
 	private Navigator navigator;
-	private AnnotationScanner scanner;
+	private transient AnnotationScanner scanner;
 	private Class<?> targetClass;
 
 
@@ -26,8 +30,6 @@ public class NavButtonWithIcon extends Button {
 		this.easyAppMainView = easyAppMainView;
 		setIcon(EasyAppMainView.getIcon(contentView.icon()));
 		setStyleNav();
-		
-		this.caption = getCaption();
 		addClickListener(this::navCliked);
 	}
 	
@@ -49,7 +51,7 @@ public class NavButtonWithIcon extends Button {
 	}
 	
 	public void setStyleSelected() {
-		setStyleName(easyAppMainView.getSelectedNavigationButtonStyle());
+		setStyleName(EasyAppMainView.getSelectedNavigationButtonStyle());
 	}
 	
 }

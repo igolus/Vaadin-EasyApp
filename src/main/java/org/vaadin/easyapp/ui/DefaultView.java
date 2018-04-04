@@ -26,9 +26,4 @@ public class DefaultView extends VerticalLayout implements View  {
 				+ " accordeonParent = ContentView.NOT_SET)"));
 	}
 
-	@Override
-	public void enter(ViewChangeEvent event) {
-		// TODO Auto-generated method stub
-	}
-
 }

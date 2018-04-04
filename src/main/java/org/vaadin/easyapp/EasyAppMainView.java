@@ -13,7 +13,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.vaadin.cssinject.CSSInject;
-import org.vaadin.easyapp.ui.ToolBar;
 import org.vaadin.easyapp.util.ActionContainer;
 import org.vaadin.easyapp.util.AnnotationScanner;
 import org.vaadin.easyapp.util.EasyAppLayout;
@@ -49,8 +48,6 @@ public class EasyAppMainView extends EasyAppLayout  {
 	private static Logger logger = Logger.getLogger(EasyAppMainView.class);
 
 	private Navigator navigator;
-
-	private Accordion accordion;
 
 	private VerticalLayout navigationLayout;
 
@@ -91,11 +88,9 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 	private String navigatorStyleName;
 
-	private String mainNavigationButtonStyle;
+	private static String mainNavigationButtonStyle;
 
 	private String navButtonStyle;
-
-	private ToolBar toolBar;
 
 	private GridLayout gridBar;
 
@@ -126,10 +121,6 @@ public class EasyAppMainView extends EasyAppLayout  {
 		return gridBar;
 	}
 
-	public ToolBar getToolBar() {
-		return toolBar;
-	}
-
 	String getNavigatorStyleName() {
 		return navigatorStyleName;
 	}
@@ -139,7 +130,7 @@ public class EasyAppMainView extends EasyAppLayout  {
 	}
 
 	public String getMainNavigationButtonStyle() {
-		return mainNavigationButtonStyle;
+		return EasyAppMainView.mainNavigationButtonStyle;
 	}
 
 	Image getTopBarIcon() {
@@ -168,7 +159,7 @@ public class EasyAppMainView extends EasyAppLayout  {
 	/**
 	 * Buikd the UI
 	 */
-	void build(UI targetUI) {
+	public void build(UI targetUI) {
 
 		EasyAppMainView.targetUI = targetUI;
 		initCss();
@@ -258,7 +249,7 @@ public class EasyAppMainView extends EasyAppLayout  {
 	public void buildAccordion() {
 		scanPackage();
 		Map<RootView, List<NavButtonWithIcon>> listButtonByRootView = scanner.getNavButtonMap();
-		accordion = new Accordion();
+		Accordion accordion = new Accordion();
 		
 		for (Map.Entry<RootView, List<NavButtonWithIcon>> entry : listButtonByRootView.entrySet()) {
 			RootView rootView = entry.getKey();
@@ -334,7 +325,7 @@ public class EasyAppMainView extends EasyAppLayout  {
 	}
 
 	public void setMainNavigationButtonStyle(String mainStyle) {
-		this.mainNavigationButtonStyle = mainStyle;
+		EasyAppMainView.mainNavigationButtonStyle = mainStyle;
 	}
 	
 	public static void setSelectedNavigationButtonStyle(String selectedStyle) {
