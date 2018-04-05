@@ -121,18 +121,19 @@ public class AnnotationScanner {
 							RootView rootView = getRootViewFromClass(rootViewParent);
 							
 							List<NavButtonWithIcon> listNavButton = navButtonMap.get(rootView);
-							if (listNavButton!=null) 
+							
+							boolean emptyConstructorExist = false;
+							
+							try {
+								classTarget.getConstructor(null);
+								emptyConstructorExist = true;
+							} catch (NoSuchMethodException | SecurityException e1) {
+								//silent catch
+							}
+							
+							if (listNavButton!=null && emptyConstructorExist) 
 							{
-								
-								try {
-									
-								}
-								catch (Exception e) {
-									e.printStackTrace();
-								}
-								Object view = classTarget.newInstance();
-								
-								
+								Object view = classTarget.newInstance();;
 								
 								ViewWithToolBar viewWithToolBar = new ViewWithToolBar();
 								NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView,  easyAppMainView, navigator, this);
