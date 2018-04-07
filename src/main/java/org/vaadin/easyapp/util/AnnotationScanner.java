@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.reflections.Reflections;
 import org.vaadin.easyapp.EasyAppMainView;
 import org.vaadin.easyapp.ui.DefaultView;
@@ -31,6 +32,7 @@ public class AnnotationScanner {
 	private Navigator navigator;
 	private EasyAppMainView easyAppMainView;
 	private NavButtonWithIcon selectedNav = null;
+	private static Logger logger = Logger.getLogger(AnnotationScanner.class);
 
 	public AnnotationScanner(Navigator navigator, List<String> packageToScan, EasyAppMainView easyAppMainView) 
 			throws InstantiationException, IllegalAccessException {
@@ -112,7 +114,7 @@ public class AnnotationScanner {
 			Set<Class<?>> annotatedContentView = reflections.getTypesAnnotatedWith(ContentView.class);
 			//first iteration to order items
 			for (Class<?> classTarget : annotatedContentView) {
-				if (EasyAppLayout.class.isAssignableFrom(classTarget)) {
+				if (EasyAppLayout.class.isAssignableFrom(classTarget) || View.class.isAssignableFrom(classTarget)) {
 					Annotation[] annotations = classTarget.getDeclaredAnnotations();
 					for (Annotation annotation : annotations) {
 						if (annotation instanceof ContentView) {
@@ -134,22 +136,34 @@ public class AnnotationScanner {
 							if (listNavButton!=null && emptyConstructorExist) 
 							{
 								Object view = classTarget.newInstance();;
+								View viewToAdd = null;
+								if (EasyAppLayout.class.isAssignableFrom(classTarget)) {
+									ViewWithToolBar viewWithToolBar = new ViewWithToolBar();
+									NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView,  easyAppMainView, navigator, this);
+									viewWithToolBar.setContentStyle(EasyAppMainView.getContentStyle());
+									viewWithToolBar.buildComponents((EasyAppLayout) view);
+									navButtonByViewName.put(classTarget.toString(), navButton);
+									listNavButton.add(navButton);
+									viewToAdd = viewWithToolBar;
+								}
+								else if(View.class.isAssignableFrom(classTarget)) {
+									viewToAdd = (View) view;
+								}
+								navigator.addView(classTarget.toString(), viewToAdd);
 								
-								ViewWithToolBar viewWithToolBar = new ViewWithToolBar();
-								NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView,  easyAppMainView, navigator, this);
-								viewWithToolBar.setContentStyle(EasyAppMainView.getContentStyle());
-								viewWithToolBar.buildComponents((EasyAppLayout) view);
-								
-								navButtonByViewName.put(classTarget.toString(), navButton);
-								navigator.addView(classTarget.toString(), (View) viewWithToolBar);
-								listNavButton.add(navButton);
-								if (contentView.homeView()) {
-									navigator.addView("" , viewWithToolBar);
+								if (contentView.homeView() && !hasHomeView) {
+									navigator.addView("" , viewToAdd);
 									hasHomeView = true;
+								}
+								else {
+									logger.warn("You did defined several home view !");
 								}
 							}
 						}
 					}
+				}
+				else {
+					logger.warn("Your component should inherit from View or EasyAppLayout");
 				}
 			}
 			

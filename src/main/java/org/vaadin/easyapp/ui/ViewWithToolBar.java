@@ -70,8 +70,10 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 			gridLayout.addComponent(searchLayout, 1, 0);
 			gridLayout.setComponentAlignment(searchLayout, Alignment.MIDDLE_RIGHT);
 		}
-		if (actionContainer != null && actionContainer.getStyleName() != null) {		
-			gridLayout.setStyleName(actionContainer.getStyleName());
+		if (actionContainer != null) {	
+			if (actionContainer.getStyleName() != null) {
+				gridLayout.setStyleName(actionContainer.getStyleName());
+			}
 			addComponent(gridLayout);
 		}
 		if (contentStyle != null) {
