@@ -88,8 +88,6 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 	private String navigatorStyleName;
 
-	private static String mainNavigationButtonStyle;
-
 	private String navButtonStyle;
 
 	private GridLayout gridBar;
@@ -121,23 +119,19 @@ public class EasyAppMainView extends EasyAppLayout  {
 		return gridBar;
 	}
 
-	String getNavigatorStyleName() {
+	public String getNavigatorStyleName() {
 		return navigatorStyleName;
 	}
 
-	void setNavigatorStyleName(String navigatorStyleName) {
+	public void setNavigatorStyleName(String navigatorStyleName) {
 		this.navigatorStyleName = navigatorStyleName;
 	}
 
-	public String getMainNavigationButtonStyle() {
-		return EasyAppMainView.mainNavigationButtonStyle;
-	}
-
-	Image getTopBarIcon() {
+	public Image getTopBarIcon() {
 		return topBarIcon;
 	}
 
-	void setTopBarIcon(Image topBarIcon) {
+	public void setTopBarIcon(Image topBarIcon) {
 		this.topBarIcon = topBarIcon;
 	}
 
@@ -166,9 +160,9 @@ public class EasyAppMainView extends EasyAppLayout  {
 		downSplitPanel = new HorizontalSplitPanel();
 
 		mainArea = buildMainArea();
-		if (getMainNavigationButtonStyle() != null) {
-			mainArea.setStyleName(getMainNavigationButtonStyle());
-		}
+//		if (getMainNavigationButtonStyle() != null) {
+//			mainArea.setStyleName(getMainNavigationButtonStyle());
+//		}
 
 		navigationPanel = buildNavigation(mainArea);
 		if (getNavigatorStyleName() != null) {
@@ -187,16 +181,16 @@ public class EasyAppMainView extends EasyAppLayout  {
 	}
 
 	private void initCss() {
-		InputStream in = getClass().getClassLoader().getResourceAsStream("/css/styles.css");
-		if (in != null) {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			try {
-				String css = IOUtils.toString(reader);
-				new CSSInject(getTargetUI()).setStyles(css);
-			} catch (IOException e) {
-				logger.error("Unable to load Css style.css", e);
-			}
-		}
+//		InputStream in = getClass().getClassLoader().getResourceAsStream("/css/styles.css");
+//		if (in != null) {
+//			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//			try {
+//				String css = IOUtils.toString(reader);
+//				new CSSInject(getTargetUI()).setStyles(css);
+//			} catch (IOException e) {
+//				logger.error("Unable to load Css style.css", e);
+//			}
+//		}
 	}
 
 	/**
@@ -265,6 +259,7 @@ public class EasyAppMainView extends EasyAppLayout  {
 			tab.setIcon(EasyAppMainView.getIcon(rootView.icon()));
 		}
 		accordion.setSizeFull();
+		accordion.setStyleName(getNavigatorStyleName());
 		navigationLayout.addComponent(accordion);
 
 	}
@@ -324,10 +319,6 @@ public class EasyAppMainView extends EasyAppLayout  {
 		return actionContainer;
 	}
 
-	public void setMainNavigationButtonStyle(String mainStyle) {
-		EasyAppMainView.mainNavigationButtonStyle = mainStyle;
-	}
-	
 	public static void setSelectedNavigationButtonStyle(String selectedStyle) {
 		EasyAppMainView.selecteNavigationButtonStyle = selectedStyle;
 	}

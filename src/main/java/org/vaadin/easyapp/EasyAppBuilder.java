@@ -51,8 +51,8 @@ public class EasyAppBuilder {
 		return this;
 	}
 	
-	public void withNavigationStyle(String mainStyle, String selectedStyle) {
-		mainView.setMainNavigationButtonStyle(mainStyle);
+	public void withNavigationButtonSelectedStyle(String selectedStyle) {
+		//mainView.setMainNavigationButtonStyle(mainStyle);
 		EasyAppMainView.setSelectedNavigationButtonStyle(selectedStyle);
 	}
 

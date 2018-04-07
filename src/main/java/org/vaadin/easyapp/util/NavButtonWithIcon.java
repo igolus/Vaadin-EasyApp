@@ -47,7 +47,7 @@ public class NavButtonWithIcon extends Button {
 	}
 	
 	public void setStyleNav() {
-		setStyleName(easyAppMainView.getMainNavigationButtonStyle());
+		setStyleName(easyAppMainView.getNavigatorStyleName());
 	}
 	
 	public void setStyleSelected() {
