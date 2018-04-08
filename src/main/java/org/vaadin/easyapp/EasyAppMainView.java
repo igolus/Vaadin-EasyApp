@@ -1,18 +1,12 @@
 package org.vaadin.easyapp;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-import org.vaadin.cssinject.CSSInject;
 import org.vaadin.easyapp.util.ActionContainer;
 import org.vaadin.easyapp.util.AnnotationScanner;
 import org.vaadin.easyapp.util.EasyAppLayout;
@@ -42,6 +36,8 @@ import com.vaadin.ui.VerticalLayout;
  *
  */
 public class EasyAppMainView extends EasyAppLayout  {
+
+	private static final int DEFAULT_NAV_SPLIT_POSITION = 300;
 
 	private static final long serialVersionUID = 1L;
 
@@ -97,10 +93,59 @@ public class EasyAppMainView extends EasyAppLayout  {
 	private static String selecteNavigationButtonStyle;
 
 	private static String contentStyle;
+	
+	private static boolean menuCollapsable;
 
 	private static ResourceBundle bundle;
 
 	private static UI targetUI;
+	
+	private static int navigatorSplitPosition;
+	
+	public static int getNavigatorSplitPosition() {
+		if (navigatorSplitPosition == 0) {
+			return DEFAULT_NAV_SPLIT_POSITION;
+		}
+		return navigatorSplitPosition;
+	}
+
+	public static void setNavigatorSplitPosition(int navigatorSplitPosition) {
+		EasyAppMainView.navigatorSplitPosition = navigatorSplitPosition;
+	}
+	
+	private static boolean navigatorPanelCollapsed = false;
+
+	private static String actionContainerStyle;
+
+	private static String topBarStyle;
+	
+	public static boolean isNavigatorPanelCollapsed() {
+		return EasyAppMainView.navigatorPanelCollapsed;
+	}
+
+
+	private void collapseNavigatorPanel() {
+		if (downSplitPanel != null) {
+			downSplitPanel.setSplitPosition(0);
+		}
+		EasyAppMainView.navigatorPanelCollapsed = true;
+	}
+	
+	private void restoreNavigatorPanel() {
+		if (downSplitPanel != null) {
+			downSplitPanel.setSplitPosition(getNavigatorSplitPosition());
+		}
+		EasyAppMainView.navigatorPanelCollapsed  = false;
+	}
+	
+	public void switchNavigatorPanelDisplay() {
+		if (EasyAppMainView.navigatorPanelCollapsed) {
+			restoreNavigatorPanel();
+		}
+		else {
+			collapseNavigatorPanel();
+		}
+	}
 
 	public String getNavButtonStyle() {
 		return navButtonStyle;
@@ -171,7 +216,7 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 		downSplitPanel.setSecondComponent(mainArea);
 		downSplitPanel.setFirstComponent(navigationPanel);
-		downSplitPanel.setSplitPosition(300, Unit.PIXELS);
+		downSplitPanel.setSplitPosition(getNavigatorSplitPosition(), Unit.PIXELS);
 		downSplitPanel.setSizeFull();
 		downSplitPanel.setLocked(true);
 
@@ -342,6 +387,29 @@ public class EasyAppMainView extends EasyAppLayout  {
 	public static String getContentStyle() {
 		return EasyAppMainView.contentStyle;
 	}
-	
+
+	public static void setMenuCollapsable(boolean value) {
+		EasyAppMainView.menuCollapsable = value;
+	}
+
+	public static boolean isMenuCollapsable() {
+		return menuCollapsable;
+	}
+
+	public static void setActionContainerStyle(String style) {
+		EasyAppMainView.actionContainerStyle = style;
+	}
+
+	public static String getActionContainerStyle() {
+		return actionContainerStyle;
+	}
+
+	public static String getTopBarStyle() {
+		return topBarStyle;
+	}
+
+	public static void setTopBarStyle(String topBarStyle) {
+		EasyAppMainView.topBarStyle = topBarStyle;
+	}
 	
 }

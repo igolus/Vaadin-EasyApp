@@ -42,7 +42,6 @@ public class AnnotationScanner {
 		init(packageToScan);
 	}
 
-	private Map<String, TreeWithIcon> treeMap = new LinkedHashMap<>();
 	private Map<RootView, List<NavButtonWithIcon>> navButtonMap = new LinkedHashMap<>();
 	
 	public Map<RootView, List<NavButtonWithIcon>> getNavButtonMap() {
@@ -52,10 +51,6 @@ public class AnnotationScanner {
 	private Map<String, NavButtonWithIcon> navButtonByViewName = new HashMap<>();
 	
 	private Map<String, Component> viewMap = new LinkedHashMap<>();
-
-	public Map<String, TreeWithIcon> getTreeMap() {
-		return treeMap;
-	}
 
 	public Map<String, Component> getViewMap() {
 		return viewMap;
@@ -103,13 +98,13 @@ public class AnnotationScanner {
 
 		
 			for (RootView rootView : rootViews) {
-				if (treeMap.get(rootView.viewName()) == null) {
+//				if (treeMap.get(rootView.viewName()) == null) {
 					List<NavButtonWithIcon> listnavButtonMap = new LinkedList<>();
 					navButtonMap.put(rootView, listnavButtonMap);
-				}
+//				}
 			}
 			
-			boolean hasHomeView = false;
+			boolean hasHomeViewDefined = false;
 			
 			Set<Class<?>> annotatedContentView = reflections.getTypesAnnotatedWith(ContentView.class);
 			//first iteration to order items
@@ -139,31 +134,33 @@ public class AnnotationScanner {
 								View viewToAdd = null;
 								if (EasyAppLayout.class.isAssignableFrom(classTarget)) {
 									ViewWithToolBar viewWithToolBar = new ViewWithToolBar();
-									NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView,  easyAppMainView, navigator, this);
+									viewWithToolBar.setActionContainerStlyle(EasyAppMainView.getActionContainerStyle());
 									viewWithToolBar.setContentStyle(EasyAppMainView.getContentStyle());
 									viewWithToolBar.buildComponents((EasyAppLayout) view);
-									navButtonByViewName.put(classTarget.toString(), navButton);
-									listNavButton.add(navButton);
 									viewToAdd = viewWithToolBar;
 								}
 								else if(View.class.isAssignableFrom(classTarget)) {
 									viewToAdd = (View) view;
 								}
+								NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView,  easyAppMainView, navigator, this);
+								navButtonByViewName.put(classTarget.toString(), navButton);
+								listNavButton.add(navButton);
+								
 								navigator.addView(classTarget.toString(), viewToAdd);
 								
-								if (contentView.homeView() && !hasHomeView) {
+								if (contentView.homeView()) {
 									navigator.addView("" , viewToAdd);
-									hasHomeView = true;
-								}
-								else {
-									logger.warn("You did defined several home view !");
+									if (hasHomeViewDefined && contentView.homeView()) {
+										logger.warn("You did defined several home view ! " + classTarget.toString() + " will be used as default view ");
+									}
+									hasHomeViewDefined = true;
 								}
 							}
 						}
 					}
 				}
 				else {
-					logger.warn("Your component should inherit from View or EasyAppLayout");
+					logger.warn("Your component should inherit from View or EasyAppLayout: " + classTarget.toString());
 				}
 			}
 			
@@ -171,11 +168,6 @@ public class AnnotationScanner {
 			{
 				//sort nav button 
 				entry.getValue().sort((p1, p2) -> p1.getContentView().sortingOrder() - p2.getContentView().sortingOrder());
-			}
-			
-
-			if (!hasHomeView) {
-				navigator.addView("" , new DefaultView());
 			}
 
 		}

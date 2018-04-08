@@ -20,19 +20,19 @@ public class EasyAppBuilder {
 	private ViewWithToolBar viewWithToolBar;
 	private EasyAppMainView mainView;
 	
+	public EasyAppMainView getMainView() {
+		return mainView;
+	}
+
 	public ViewWithToolBar build(UI targetUI) {
 		mainView.build(targetUI);
+		viewWithToolBar.setActionContainerStlyle(mainView.getTopBarStyle());
 		viewWithToolBar.buildComponents(mainView);
 		return viewWithToolBar;
 	}
 	
 	public EasyAppBuilder withActionContainer(ActionContainer actionContainer) {
 		mainView.setActionContainer(actionContainer);
-		return this;
-	}
-	
-	public EasyAppBuilder withToolBarStyle(String style) {
-		viewWithToolBar.setToolBarStyle(style);
 		return this;
 	}
 	
@@ -51,19 +51,40 @@ public class EasyAppBuilder {
 		return this;
 	}
 	
-	public void withNavigationButtonSelectedStyle(String selectedStyle) {
+	public EasyAppBuilder withNavigationButtonSelectedStyle(String selectedStyle) {
 		//mainView.setMainNavigationButtonStyle(mainStyle);
 		EasyAppMainView.setSelectedNavigationButtonStyle(selectedStyle);
+		return this;
 	}
 
-	public void withRessourceBundle(ResourceBundle bundle) {
+	public EasyAppBuilder withRessourceBundle(ResourceBundle bundle) {
 		EasyAppMainView.setResourceBundle(bundle);
-		
+		return this;
 	}
 
-	public void withContentStyle(String contentStyle) {
+	public EasyAppBuilder withContentStyle(String contentStyle) {
 		EasyAppMainView.setContentStyle(contentStyle);
-		
+		return this;
+	}
+	
+	public EasyAppBuilder withNavigatorSplitPosition(int splitPosition) {
+		EasyAppMainView.setNavigatorSplitPosition(splitPosition);
+		return this;
+	}
+
+	public EasyAppBuilder withMenuCollapsable() {
+		EasyAppMainView.setMenuCollapsable(true);
+		return this;
+	}
+
+	public EasyAppBuilder withActionContainerStyle(String style) {
+		EasyAppMainView.setActionContainerStyle(style);
+		return this;
+	}
+
+	public EasyAppBuilder withTopBarStyle(String style) {
+		EasyAppMainView.setTopBarStyle(style);
+		return this;
 	}
 
 }
