@@ -125,7 +125,7 @@ public class AnnotationScanner {
 								classTarget.getConstructor(null);
 								emptyConstructorExist = true;
 							} catch (NoSuchMethodException | SecurityException e1) {
-								//silent catch
+								logger.warn("Please define at least one empty constructor for you view: " + classTarget.toString());
 							}
 							
 							if (listNavButton!=null && emptyConstructorExist) 

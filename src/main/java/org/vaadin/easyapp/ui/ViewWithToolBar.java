@@ -72,45 +72,6 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 			}
 		}
 
-		
-		
-//		gridLayout.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
-//		gridLayout.setComponentAlignment(rightLayout, Alignment.MIDDLE_RIGHT);
-//		
-//		if (rightLayout.si)
-//		
-//
-//		List<ButtonWithCheck> listButtonWithCheck = null;
-//		List<Image> listImages= null;
-//		if (actionContainer != null) {
-//			listImages = actionContainer.getListImages();
-//			listButtonWithCheck = actionContainer.getListButtonWithCheck();
-//		}
-//		
-//		
-//		leftLayout = new HorizontalLayout();
-//
-//
-//		fillImages(listImages);
-//		fillButtons(actionContainer, listButtonWithCheck);
-//		fillSearchComponents(actionContainer);
-//
-//
-//		gridLayout.setWidth(100,Unit.PERCENTAGE);
-//		gridLayout.setMargin(false);
-//
-//		gridLayout.addComponent(leftLayout, 0, 0);
-//		gridLayout.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
-//		if (searchLayout != null) {
-//			gridLayout.addComponent(searchLayout, 1, 0);
-//			gridLayout.setComponentAlignment(searchLayout, Alignment.MIDDLE_RIGHT);
-//		}
-//		if (actionContainer != null) {	
-//			if (actionContainer.getStyleName() != null) {
-//				gridLayout.setStyleName(actionContainer.getStyleName());
-//			}
-//			addComponent(gridLayout);
-//		}
 		if (contentStyle != null) {
 			innerComponent.setStyleName(contentStyle);
 		}

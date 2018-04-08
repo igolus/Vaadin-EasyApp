@@ -5,7 +5,11 @@ import java.util.ResourceBundle;
 
 import org.vaadin.easyapp.ui.ViewWithToolBar;
 import org.vaadin.easyapp.util.ActionContainer;
+import org.vaadin.easyapp.util.ActionContainer.InsertPosition;
+import org.vaadin.easyapp.util.ActionContainer.Position;
+import org.vaadin.easyapp.util.ButtonWithCheck;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.UI;
 
@@ -27,11 +31,23 @@ public class EasyAppBuilder {
 	public ViewWithToolBar build(UI targetUI) {
 		mainView.build(targetUI);
 		viewWithToolBar.setActionContainerStlyle(mainView.getTopBarStyle());
+		
+		
 		viewWithToolBar.buildComponents(mainView);
 		return viewWithToolBar;
 	}
 	
 	public EasyAppBuilder withActionContainer(ActionContainer actionContainer) {
+		if (mainView.isMenuCollapsable()) {
+			ButtonWithCheck buttonCollapse = new ButtonWithCheck(() -> {
+				return true;
+			});
+			buttonCollapse.setIcon(VaadinIcons.MENU);
+			buttonCollapse.addClickListener((event) -> {
+				mainView.switchNavigatorPanelDisplay();
+			});
+			actionContainer.addButtonWithCheck(buttonCollapse, Position.LEFT, InsertPosition.BEFORE);
+		}
 		mainView.setActionContainer(actionContainer);
 		return this;
 	}
