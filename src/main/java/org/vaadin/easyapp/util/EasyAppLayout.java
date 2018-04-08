@@ -1,5 +1,8 @@
 package org.vaadin.easyapp.util;
 
+import org.vaadin.easyapp.EasyAppMainView;
+import org.vaadin.easyapp.ui.ViewWithToolBar;
+
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.VerticalLayout;
 
@@ -7,6 +10,15 @@ import com.vaadin.ui.VerticalLayout;
 public abstract class EasyAppLayout extends VerticalLayout {
 
 	protected ActionContainer actionContainer = null;
+	private ViewWithToolBar viewWithToolBarSource;
+
+	public ViewWithToolBar getViewWithToolBarSource() {
+		return viewWithToolBarSource;
+	}
+
+	public void setViewWithToolBarSource(ViewWithToolBar viewWithToolBarSource) {
+		this.viewWithToolBarSource = viewWithToolBarSource;
+	}
 
 	public EasyAppLayout() {
 		super();
@@ -20,11 +32,24 @@ public abstract class EasyAppLayout extends VerticalLayout {
 		return actionContainer;
 	}
 
-	public void enter(ViewChangeEvent event) {
+	public final void enter(ViewChangeEvent event) {
+		if (getTitle() != null) {
+			EasyAppMainView.getInstance().setContextualText(getTitle());
+		}
+		else {
+			EasyAppMainView.getInstance().removeContextualText();
+		}
+		enterInView(event);
 	}
+	
+	public abstract void enterInView(ViewChangeEvent event);
 
 
 	public ActionContainer buildActionContainer() {
+		return null;
+	}
+	
+	public String getTitle() {
 		return null;
 	}
 
@@ -36,13 +61,14 @@ public abstract class EasyAppLayout extends VerticalLayout {
 			for (ButtonWithCheck buttonWithCheck : actionContainer.getListButtonWithCheck()) {
 				if (buttonWithCheck.getButtonClickable() != null) {
 					boolean buttonClickable = buttonWithCheck.getButtonClickable().isClickable();
-					buttonWithCheck.getButton().setEnabled(buttonClickable);
+					buttonWithCheck.setEnabled(buttonClickable);
 				}
 			}
 		}
 	}
-
 	
+	
+
 
 
 }

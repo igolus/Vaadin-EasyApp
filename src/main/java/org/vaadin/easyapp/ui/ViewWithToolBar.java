@@ -24,6 +24,16 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 
 	private EasyAppLayout innerComponent;
 	private HorizontalLayout leftLayout;
+	
+	public HorizontalLayout getLeftLayout() {
+		return leftLayout;
+	}
+
+	public HorizontalLayout getRightLayout() {
+		return rightLayout;
+	}
+
+
 	private HorizontalLayout rightLayout;
 	private String contentStyle;
 	private String actionContainerStlyle;
@@ -79,6 +89,9 @@ public class ViewWithToolBar extends VerticalLayout implements View {
 		addComponent(innerComponent);
 		setSizeFull();
 		setExpandRatio(innerComponent, 1.0f);
+		innerComponent.refreshClickable();
+		
+		innerComponent.setViewWithToolBarSource(this);
 
 	}
 

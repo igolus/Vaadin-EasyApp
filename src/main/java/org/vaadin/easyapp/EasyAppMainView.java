@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.vaadin.easyapp.ui.ViewWithToolBar;
 import org.vaadin.easyapp.util.ActionContainer;
 import org.vaadin.easyapp.util.AnnotationScanner;
 import org.vaadin.easyapp.util.EasyAppLayout;
@@ -15,6 +16,7 @@ import org.vaadin.easyapp.util.annotations.RootView;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
@@ -25,6 +27,7 @@ import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet.Tab;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -90,6 +93,8 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 	private Image navigationIcon;
 
+	private static EasyAppMainView Instance;
+
 	private static String selecteNavigationButtonStyle;
 
 	private static String contentStyle;
@@ -118,6 +123,10 @@ public class EasyAppMainView extends EasyAppLayout  {
 	private static String actionContainerStyle;
 
 	private static String topBarStyle;
+
+	private static String applicationTitle;
+
+	private static String contextualTextLabelStyle;
 	
 	public static boolean isNavigatorPanelCollapsed() {
 		return EasyAppMainView.navigatorPanelCollapsed;
@@ -205,9 +214,6 @@ public class EasyAppMainView extends EasyAppLayout  {
 		downSplitPanel = new HorizontalSplitPanel();
 
 		mainArea = buildMainArea();
-//		if (getMainNavigationButtonStyle() != null) {
-//			mainArea.setStyleName(getMainNavigationButtonStyle());
-//		}
 
 		navigationPanel = buildNavigation(mainArea);
 		if (getNavigatorStyleName() != null) {
@@ -223,7 +229,40 @@ public class EasyAppMainView extends EasyAppLayout  {
 		addComponent(downSplitPanel);
 
 		setSizeFull();
+		Instance = this;
 	}
+	
+	public static EasyAppMainView getInstance() {
+		return Instance;
+	}
+	
+	private Label contextualTextLabel = null;
+	
+	public void setContextualText (String text) {
+		ViewWithToolBar viewWithToolBar = getViewWithToolBarSource();
+		if (viewWithToolBar != null && viewWithToolBar.getLeftLayout() != null) {
+			if (viewWithToolBar.getLeftLayout().getComponentIndex(contextualTextLabel) == -1) {
+				if (contextualTextLabel == null) {
+					contextualTextLabel = new Label();
+					contextualTextLabel.setStyleName(getContextualTextLabelStyle());
+				}
+				viewWithToolBar.getLeftLayout().addComponent(contextualTextLabel);
+			}
+			contextualTextLabel.setValue(text);
+		}
+	}
+	
+	public void removeContextualText () {
+		ViewWithToolBar viewWithToolBar = getViewWithToolBarSource();
+		if (viewWithToolBar != null && viewWithToolBar.getLeftLayout() != null) {
+			if (viewWithToolBar.getLeftLayout().getComponentIndex(contextualTextLabel) != -1) {
+				viewWithToolBar.getLeftLayout().removeComponent(contextualTextLabel);
+			}
+		}
+	}
+	
+
+
 
 	private void initCss() {
 //		InputStream in = getClass().getClassLoader().getResourceAsStream("/css/styles.css");
@@ -410,6 +449,27 @@ public class EasyAppMainView extends EasyAppLayout  {
 
 	public static void setTopBarStyle(String topBarStyle) {
 		EasyAppMainView.topBarStyle = topBarStyle;
+	}
+
+	public static void setApplicationTitle(String title) {
+		EasyAppMainView.applicationTitle = title;
+	}
+
+	public static String getApplicationTitle() {
+		return applicationTitle;
+	}
+	
+	private static String getContextualTextLabelStyle() {
+		// TODO Auto-generated method stub
+		return EasyAppMainView.contextualTextLabelStyle;
+	}
+
+	public static void setContextualTextLabelStyle(String contextualTextLabelStyle) {
+		EasyAppMainView.contextualTextLabelStyle = contextualTextLabelStyle;
+	}
+
+	@Override
+	public void enterInView(ViewChangeEvent event) {
 	}
 	
 }

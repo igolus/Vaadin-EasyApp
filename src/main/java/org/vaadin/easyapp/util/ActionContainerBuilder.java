@@ -36,8 +36,7 @@ public class ActionContainerBuilder {
 		if (clickable == null) {
 			clickable = () -> {return true;};
 		}
-		actionContainer.addButtonWithCheck(new ButtonWithCheck(buttonName, clickable), position, insertPosition);
-		button.addClickListener(listener);
+		actionContainer.addButtonWithCheck(new ButtonWithCheck(buttonName, clickable, listener), position, insertPosition);
 		return this;
 	}
 	

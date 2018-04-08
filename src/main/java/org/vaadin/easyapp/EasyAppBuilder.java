@@ -11,6 +11,7 @@ import org.vaadin.easyapp.util.ButtonWithCheck;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 
 public class EasyAppBuilder {
@@ -39,15 +40,18 @@ public class EasyAppBuilder {
 	
 	public EasyAppBuilder withActionContainer(ActionContainer actionContainer) {
 		if (mainView.isMenuCollapsable()) {
-			ButtonWithCheck buttonCollapse = new ButtonWithCheck(() -> {
-				return true;
-			});
+			ButtonWithCheck buttonCollapse = new ButtonWithCheck(
+				() -> { return true;},
+				(event) -> {mainView.switchNavigatorPanelDisplay();}		
+			);
 			buttonCollapse.setIcon(VaadinIcons.MENU);
-			buttonCollapse.addClickListener((event) -> {
-				mainView.switchNavigatorPanelDisplay();
-			});
 			actionContainer.addButtonWithCheck(buttonCollapse, Position.LEFT, InsertPosition.BEFORE);
 		}
+		
+		if (mainView.getApplicationTitle() != null) {
+			actionContainer.addComponent(new Label(mainView.getApplicationTitle()), Position.LEFT, InsertPosition.AFTER);
+		}
+		
 		mainView.setActionContainer(actionContainer);
 		return this;
 	}
@@ -101,6 +105,16 @@ public class EasyAppBuilder {
 	public EasyAppBuilder withTopBarStyle(String style) {
 		EasyAppMainView.setTopBarStyle(style);
 		return this;
+	}
+
+	public EasyAppBuilder withApplicationTitle(String title) {
+		EasyAppMainView.setApplicationTitle(title);
+		return this;
+		
+	}
+
+	public void withContextualTextLabelStyle(String style) {
+		EasyAppMainView.setContextualTextLabelStyle(style);
 	}
 
 }

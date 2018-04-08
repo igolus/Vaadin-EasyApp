@@ -7,21 +7,18 @@ public class ButtonWithCheck extends Button {
 	 * 
 	 */
 	private static final long serialVersionUID = -5788189783928567987L;
-	private Button button;
 	private ButtonClickable buttonClickable;
 	
-	public ButtonWithCheck(ButtonClickable buttonClickable) {
-		super();
-		this.buttonClickable = buttonClickable;
+	public ButtonWithCheck(ButtonClickable buttonClickable, ClickListener listener) {
+		this(null, buttonClickable, listener);
 	}
 	
-	public ButtonWithCheck(String caption, ButtonClickable buttonClickable) {
+	public ButtonWithCheck(String caption, ButtonClickable buttonClickable, ClickListener listener) {
 		super(caption);
 		this.buttonClickable = buttonClickable;
-	}
-
-	public Button getButton() {
-		return button;
+		if (listener != null) {
+			addClickListener( (event) -> {listener.buttonClick(event);});
+		}
 	}
 
 	public ButtonClickable getButtonClickable() {
