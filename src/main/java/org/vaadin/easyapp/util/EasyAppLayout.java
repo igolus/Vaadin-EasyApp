@@ -42,7 +42,9 @@ public abstract class EasyAppLayout extends VerticalLayout {
 		enterInView(event);
 	}
 	
-	public abstract void enterInView(ViewChangeEvent event);
+	public void enterInView(ViewChangeEvent event) {
+		
+	}
 
 
 	public ActionContainer buildActionContainer() {
