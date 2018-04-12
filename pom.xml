@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin</groupId>
 	<artifactId>easyApp</artifactId>
-	<version>1.0-beta</version>
+	<version>0.1-SNAPSHOP</version>
 	<name>easyApp</name>
 	<organization>
 		<name>Guillaume Rousseau</name>
