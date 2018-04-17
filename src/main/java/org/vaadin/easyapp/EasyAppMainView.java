@@ -1,57 +1,46 @@
 package org.vaadin.easyapp;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-import org.vaadin.easyapp.event.LoginTrigger;
-import org.vaadin.easyapp.event.LogoutTrigger;
-import org.vaadin.easyapp.event.NavigationTrigger;
-import org.vaadin.easyapp.event.SearchTrigger;
-import org.vaadin.easyapp.ui.ToolBar;
+import org.vaadin.easyapp.ui.ViewWithToolBar;
+import org.vaadin.easyapp.util.ActionContainer;
 import org.vaadin.easyapp.util.AnnotationScanner;
-import org.vaadin.easyapp.util.TreeWithIcon;
-import org.vaadin.easyapp.util.UserPasswordPopupView;
-import org.vaadin.easyapp.util.VisitableView;
+import org.vaadin.easyapp.util.EasyAppLayout;
+import org.vaadin.easyapp.util.NavButtonWithIcon;
 import org.vaadin.easyapp.util.annotations.RootView;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.navigator.ViewDisplay;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.PasswordField;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.TabSheet.Tab;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
 
 
 /**
  * Main class to embed navigation
- * @author igolus
+ * @author guillaume Rousseau
  *
  */
-public class EasyAppMainView extends VerticalSplitPanel  {
+public class EasyAppMainView extends EasyAppLayout  {
+
+	private static final int DEFAULT_NAV_SPLIT_POSITION = 300;
 
 	private static final long serialVersionUID = 1L;
 
@@ -59,24 +48,12 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 	private Navigator navigator;
 
-	private Accordion accordion;
-
 	private VerticalLayout navigationLayout;
 
 	private HorizontalSplitPanel downSplitPanel;
 
 	private Component topBar;
-	
-	private ArrayList<NavigationTrigger> navigationTriggers = new ArrayList<>();
-	
-	public ArrayList<NavigationTrigger> getNavigationTriggers() {
-		return navigationTriggers;
-	}
 
-	public synchronized void addNavigationTrigger (NavigationTrigger navigationTrigger) {
-		navigationTriggers.add(navigationTrigger);
-	}
-	
 
 	/**
 	 * return top bar as a component
@@ -108,189 +85,107 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 	private Image topBarIcon;
 
-	private boolean logingCapabilities;
-
-	private String loggingTextButton = "login";
-
-	private boolean searchCapabilities;
-
-	private boolean breadcrumb;
-
-	private String TopBarStyleName;
-
 	private String navigatorStyleName;
 
-	private String mainViewStyle;
-
-	private SearchTrigger onSearchListener;
-
-	private Resource iconSearch;
-
-	private String loginText;
-
-	private String loggingUserPrompt;
-	
-	private String loginErrorText = "Login error";
-	
-	private String styleErrorText;
-	
-	public void setLoginErrorText(String loginErrorText) {
-		this.loginErrorText = loginErrorText;
-	}
-
-	public void setStyleErrorText(String styleErrorText) {
-		this.styleErrorText = styleErrorText;
-	}
-
-	void setLoggingText(String loggingText) {
-		this.loggingTextButton = loggingText;
-	}
-
-	void setLoggingUserPrompt(String loggingUserPrompt) {
-		this.loggingUserPrompt = loggingUserPrompt;
-	}
-
-	void setLoggingUserText(String loggingUserText) {
-		this.loggingUserText = loggingUserText;
-	}
-
-	void setLoggingPassWordText(String loggingPassWordText) {
-		this.loggingPassWordText = loggingPassWordText;
-	}
-
-	void setLoginCaption(String loginCaption) {
-		this.loginCaption = loginCaption;
-	}
-
-	private String popupLoginStyle;
-
-	private String loggingUserText = "login:";
-
-	private String loggingPassWordText = "password:";
-
-	private UserPasswordPopupView loginPopup;
-
-	private String loginCaption = "Please login to access the application. (test@test.com/passw0rd)";
-
-	private String logOutTextButton = "logout";
-
-	private LoginTrigger loginTrigger;
-
-	private LogoutTrigger logoutTrigger;
-
-	private String userLabelStyle;
-	
-	private Label userLabel;
-
-	private Button logoutButton;
-
-	private Button toolsLoginButton;
-
-	private Label breadcrumbLabel;
-
-	private String breadcrumbLabelStyle;
-
-	private HorizontalLayout breadCrumbBar;
-
-	private String buttonLinkStyle;
-
-	private HorizontalLayout toolsLayout;
-
-	private boolean toolBarb;
-
-	private ToolBar toolBar;
+	private String navButtonStyle;
 
 	private GridLayout gridBar;
+
+	private Image navigationIcon;
+
+	private static EasyAppMainView Instance;
+
+	private static String selecteNavigationButtonStyle;
+
+	private static String contentStyle;
+	
+	private static boolean menuCollapsable;
+
+	private static ResourceBundle bundle;
+
+	private static UI targetUI;
+	
+	private static int navigatorSplitPosition;
+	
+	public static int getNavigatorSplitPosition() {
+		if (navigatorSplitPosition == 0) {
+			return DEFAULT_NAV_SPLIT_POSITION;
+		}
+		return navigatorSplitPosition;
+	}
+
+	public static void setNavigatorSplitPosition(int navigatorSplitPosition) {
+		EasyAppMainView.navigatorSplitPosition = navigatorSplitPosition;
+	}
+	
+	private static boolean navigatorPanelCollapsed = false;
+
+	private static String actionContainerStyle;
+
+	private static String topBarStyle;
+
+	private static String applicationTitle;
+
+	private static String contextualTextLabelStyle;
+	
+	public static boolean isNavigatorPanelCollapsed() {
+		return EasyAppMainView.navigatorPanelCollapsed;
+	}
+
+
+	private void collapseNavigatorPanel() {
+		if (downSplitPanel != null) {
+			downSplitPanel.setSplitPosition(0);
+		}
+		EasyAppMainView.navigatorPanelCollapsed = true;
+	}
+	
+	private void restoreNavigatorPanel() {
+		if (downSplitPanel != null) {
+			downSplitPanel.setSplitPosition(getNavigatorSplitPosition());
+		}
+		EasyAppMainView.navigatorPanelCollapsed  = false;
+	}
+	
+	public void switchNavigatorPanelDisplay() {
+		if (EasyAppMainView.navigatorPanelCollapsed) {
+			restoreNavigatorPanel();
+		}
+		else {
+			collapseNavigatorPanel();
+		}
+	}
+
+	public String getNavButtonStyle() {
+		return navButtonStyle;
+	}
+
+	public void setNavButtonStyle(String navButtonStyle) {
+		this.navButtonStyle = navButtonStyle;
+	}
+
+
+	public static UI getTargetUI() {
+		return targetUI;
+	}
 
 	public GridLayout getGridBar() {
 		return gridBar;
 	}
 
-	public ToolBar getToolBar() {
-		return toolBar;
-	}
-
-	public void setButtonLinkStyle(String buttonLinkStyle) {
-		this.buttonLinkStyle = buttonLinkStyle;
-	}
-
-	public void setBreadcrumbLabelStyle(String breadcrumbLabelStyle) {
-		this.breadcrumbLabelStyle = breadcrumbLabelStyle;
-	}
-
-	void setUserLabelStyle(String userLabelStyle) {
-		this.userLabelStyle = userLabelStyle;
-	}
-
-	String getLoginText() {
-		return loginText;
-	}
-
-	void setLoginText(String loginText) {
-		this.loginText = loginText;
-	}
-
-	public void setIconSearch(Resource iconSearch2) {
-		this.iconSearch = iconSearch2;
-	}
-
-	void setOnSearchListener(SearchTrigger searchTrigger) {
-		this.onSearchListener = searchTrigger;
-	}
-
-	String getTopBarStyleName() {
-		return TopBarStyleName;
-	}
-
-	void setTopBarStyleName(String topBarStyleName) {
-		TopBarStyleName = topBarStyleName;
-	}
-
-	String getNavigatorStyleName() {
+	public String getNavigatorStyleName() {
 		return navigatorStyleName;
 	}
 
-	void setNavigatorStyleName(String navigatorStyleName) {
+	public void setNavigatorStyleName(String navigatorStyleName) {
 		this.navigatorStyleName = navigatorStyleName;
 	}
 
-	String getMainViewStyle() {
-		return mainViewStyle;
-	}
-
-	void setMainViewStyle(String mainViewStyle) {
-		this.mainViewStyle = mainViewStyle;
-	}
-
-	boolean isSearchCapabilities() {
-		return searchCapabilities;
-	}
-
-	void setSearchCapabilities(boolean searchCapabilities) {
-		this.searchCapabilities = searchCapabilities;
-	}
-
-	boolean isBreadcrumb() {
-		return breadcrumb;
-	}
-
-	void setBreadcrumb(boolean breadcrumb) {
-		this.breadcrumb = breadcrumb;
-	}
-
-	boolean isLogingCapabilities() {
-		return logingCapabilities;
-	}
-
-	void setLogingCapabilities(boolean logingCapabilities) {
-		this.logingCapabilities = logingCapabilities;
-	}
-
-	Image getTopBarIcon() {
+	public Image getTopBarIcon() {
 		return topBarIcon;
 	}
 
-	void setTopBarIcon(Image topBarIcon) {
+	public void setTopBarIcon(Image topBarIcon) {
 		this.topBarIcon = topBarIcon;
 	}
 
@@ -312,86 +207,74 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 	/**
 	 * Buikd the UI
 	 */
-	void build() {
+	public void build(UI targetUI) {
+
+		EasyAppMainView.targetUI = targetUI;
+		initCss();
 		downSplitPanel = new HorizontalSplitPanel();
 
 		mainArea = buildMainArea();
-		if (getMainViewStyle() != null) {
-			mainArea.setStyleName(getMainViewStyle());
-		}
-
-		topBar = buildTopBar();
-		if (getTopBarStyleName() != null) {
-			topBar.setStyleName(getTopBarStyleName());
-		}
 
 		navigationPanel = buildNavigation(mainArea);
 		if (getNavigatorStyleName() != null) {
 			navigationPanel.setStyleName(getNavigatorStyleName());
 		}
-		
-		
 
 		downSplitPanel.setSecondComponent(mainArea);
 		downSplitPanel.setFirstComponent(navigationPanel);
-		downSplitPanel.setSplitPosition(300, Unit.PIXELS);
+		downSplitPanel.setSplitPosition(getNavigatorSplitPosition(), Unit.PIXELS);
 		downSplitPanel.setSizeFull();
 		downSplitPanel.setLocked(true);
 
-		setSecondComponent(downSplitPanel);
-		setFirstComponent(topBar);
-		setSplitPosition(10, Unit.PIXELS);
+		addComponent(downSplitPanel);
 
 		setSizeFull();
-		setLocked(true);
-		
-		addNavigationTrigger( (clazz) -> resfreshBreabCrumb());
-		
-		if (getToolBar() != null) {
-			manageToolBar();
+		Instance = this;
+	}
+	
+	public static EasyAppMainView getInstance() {
+		return Instance;
+	}
+	
+	private Label contextualTextLabel = null;
+	
+	public void setContextualText (String text) {
+		ViewWithToolBar viewWithToolBar = getViewWithToolBarSource();
+		if (viewWithToolBar != null && viewWithToolBar.getLeftLayout() != null) {
+			if (viewWithToolBar.getLeftLayout().getComponentIndex(contextualTextLabel) == -1) {
+				if (contextualTextLabel == null) {
+					contextualTextLabel = new Label();
+					contextualTextLabel.setStyleName(getContextualTextLabelStyle());
+				}
+				viewWithToolBar.getLeftLayout().addComponent(contextualTextLabel);
+			}
+			contextualTextLabel.setValue(text);
 		}
-			
-		
 	}
-
-	private void manageToolBar() {
-		
-		getNavigator().addViewChangeListener(new ViewChangeListener() {
-
-			@Override
-			public boolean beforeViewChange(ViewChangeEvent event) {
-				// TODO Auto-generated method stub
-				return true;
-			}
-
-			@Override
-			public void afterViewChange(ViewChangeEvent event) {
-				if (event.getNewView() instanceof VisitableView) {
-					getToolBar().inspect((VisitableView) event.getNewView());
-				}
-			}});
-	}
-
-
-	private void resfreshBreabCrumb() {
-		List<Component> breadCrumbLinkComponent = scanner.getBreadCrumbLinkList();
-		breadCrumbBar.removeAllComponents();
-		for (Iterator iterator = breadCrumbLinkComponent.iterator(); iterator.hasNext();) {
-			Component component = (Component) iterator.next();
-			if (breadcrumbLabelStyle != null) {
-				component.setStyleName(breadcrumbLabelStyle);
-			}
-			breadCrumbBar.addComponent(component);
-			breadCrumbBar.setComponentAlignment(component, Alignment.MIDDLE_CENTER);
-			if (iterator.hasNext()) {
-				Label labelSep = new Label (" >");
-				if (breadcrumbLabelStyle != null) {
-					labelSep.setStyleName(breadcrumbLabelStyle);
-				}
-				breadCrumbBar.addComponent(labelSep);
-				breadCrumbBar.setComponentAlignment(labelSep, Alignment.MIDDLE_CENTER);
+	
+	public void removeContextualText () {
+		ViewWithToolBar viewWithToolBar = getViewWithToolBarSource();
+		if (viewWithToolBar != null && viewWithToolBar.getLeftLayout() != null) {
+			if (viewWithToolBar.getLeftLayout().getComponentIndex(contextualTextLabel) != -1) {
+				viewWithToolBar.getLeftLayout().removeComponent(contextualTextLabel);
 			}
 		}
+	}
+	
+
+
+
+	private void initCss() {
+//		InputStream in = getClass().getClassLoader().getResourceAsStream("/css/styles.css");
+//		if (in != null) {
+//			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//			try {
+//				String css = IOUtils.toString(reader);
+//				new CSSInject(getTargetUI()).setStyles(css);
+//			} catch (IOException e) {
+//				logger.error("Unable to load Css style.css", e);
+//			}
+//		}
 	}
 
 	/**
@@ -404,174 +287,13 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 	private void scanPackage() {
 		try {
-			scanner = new AnnotationScanner(getNavigator(), packagesToScan, navigationTriggers, buttonLinkStyle);
+			scanner = new AnnotationScanner(getNavigator(), packagesToScan , this);
 		} catch (InstantiationException | IllegalAccessException e) {
-			logger.error("Unable to create the AnnotationScanner");
+			logger.error("Unable to create the AnnotationScanner", e);
 		}
 	}
 
-	private Component buildTopBar() {
-		
-		HorizontalLayout horizontalLayoutTopBar = new HorizontalLayout();
-		horizontalLayoutTopBar.setSizeFull();
-		horizontalLayoutTopBar.setStyleName("topBannerBackGround");
-		
-		HorizontalLayout lefthHorizontalBar = new HorizontalLayout();
-		//icon
-		Image image = getTopBarIcon();
-		if (image != null) {
-			lefthHorizontalBar.addComponent(image);
-			//horizontalLayoutTopBar.setComponentAlignment(image, Alignment.MIDDLE_LEFT);
-		}
-		breadCrumbBar = new HorizontalLayout();
-		lefthHorizontalBar.addComponent(breadCrumbBar);
-		lefthHorizontalBar.setComponentAlignment(breadCrumbBar, Alignment.MIDDLE_LEFT);
-		
-		horizontalLayoutTopBar.addComponent(lefthHorizontalBar);
-		horizontalLayoutTopBar.setComponentAlignment(lefthHorizontalBar, Alignment.MIDDLE_LEFT);
-		
-		toolsLayout = new HorizontalLayout();
-		if (searchCapabilities) {
-			TextField search = new TextField();
-			addComponent(search);
-			toolsLayout.addComponent(search);
-			Button searchButton = new Button();
-			if (iconSearch == null) {
-				searchButton.setCaption("Search");
-			}
-			else {
-				searchButton.setIcon(iconSearch);
-			}
-
-			toolsLayout.addComponent(searchButton);
-			searchButton.addClickListener((event) -> onSearchListener.searchTriggered(search.getValue()));
-		}
-
-		if (logingCapabilities) {
-			if (loginText == null) {
-				loginText = "login";
-			}
-			manageLoginButton();
-		}
-
-		horizontalLayoutTopBar.addComponent(toolsLayout);
-		horizontalLayoutTopBar.setComponentAlignment(toolsLayout,  Alignment.MIDDLE_RIGHT);
-		
-		if (toolBarb) {
-			VerticalLayout verticalLayout= new VerticalLayout();
-			verticalLayout.addComponent(horizontalLayoutTopBar);
-			
-			toolBar = new ToolBar(gridBar);
-			verticalLayout.addComponent(toolBar);
-			verticalLayout.setExpandRatio(horizontalLayoutTopBar, 0.7f);
-			verticalLayout.setExpandRatio(toolBar, 0.3f);
-			return verticalLayout;
-		}
-		
-		return horizontalLayoutTopBar;
-	}
-
-	private void manageLoginButton() {
-		toolsLoginButton = new Button(loggingTextButton);
-		Button innerLoginButton = buidInnerLoginButton(toolsLayout);
-		loginPopup = buildLoginPopup(innerLoginButton);
-		
-		manageLogoutBehavior(logoutButton, toolsLayout);
-		
-		toolsLayout.addComponents(toolsLoginButton, loginPopup);
-		toolsLoginButton.addClickListener(click -> loginPopup.setPopupVisible(true));
-	}
-
-	private void manageLogoutBehavior(Button logoutButton, HorizontalLayout toolsLayout) {
-		logoutButton.addClickListener(new ClickListener() {
-			@Override
-			public void buttonClick(ClickEvent event) {
-				toolsLayout.removeComponent(userLabel);
-				toolsLayout.removeComponent(logoutButton);
-				manageLoginButton();
-				if (logoutTrigger != null) {
-					logoutTrigger.logoutTriggered();
-				}
-			}
-		});
-		
-	}
-
-	private UserPasswordPopupView buildLoginPopup(Button innerLoginButton) {
-		VerticalLayout popupContent = new VerticalLayout();
-
-		TextField user = new TextField(loggingUserText);
-		user.setWidth("300px");
-		user.setRequired(true);
-		user.setInputPrompt(loggingUserPrompt);
-
-		user.setInvalidAllowed(false);
-
-		// Create the password input field
-		PasswordField password = new PasswordField(loggingPassWordText);
-		password.setWidth("300px");
-		password.setRequired(true);
-		password.setValue("");
-		password.setNullRepresentation("");
-
-
-		// Add both to a panel
-		VerticalLayout fields = new VerticalLayout(user, password, innerLoginButton);
-		fields.setCaption(loginCaption);
-		fields.setSpacing(true);
-		fields.setMargin(new MarginInfo(true, true, true, false));
-		fields.setSizeUndefined();
-
-		// The view root layout
-		VerticalLayout viewLayout = new VerticalLayout(fields);
-		viewLayout.setSizeFull();
-		viewLayout.setComponentAlignment(fields, Alignment.MIDDLE_CENTER);
-		if (popupLoginStyle != null) {
-			viewLayout.setStyleName(popupLoginStyle);
-		}
-		popupContent.addComponent(viewLayout);
-
-		UserPasswordPopupView popup = new UserPasswordPopupView(null, popupContent);
-		popup.setViewLayout(viewLayout);
-		
-		popup.setPasswordField(password);
-		popup.setUserTextField(user);
-		return popup;
-	}
-
-	private Button buidInnerLoginButton(HorizontalLayout toolsLayout) {
-		Button loginInnerButton = new Button(loggingTextButton);
-		logoutButton = new Button(logOutTextButton);
-		loginInnerButton.addClickListener(new ClickListener() {
-			@Override
-			public void buttonClick(ClickEvent event) {
-				if (loginTrigger != null) {
-					String userLogged = loginTrigger.loginTriggered(loginPopup.getUserTextField().getValue(), 
-							loginPopup.getPasswordField().getValue());
-					if (userLogged != null) {
-						loginPopup.setVisible(false);
-						toolsLayout.removeComponent(toolsLoginButton);
-
-						userLabel = new Label(userLogged);
-						if (userLabelStyle != null) {
-							userLabel.setStyleName(userLabelStyle);
-						}
-						
-						toolsLayout.addComponent(userLabel);
-						toolsLayout.addComponent(logoutButton);
-						toolsLayout.setComponentAlignment(userLabel, Alignment.MIDDLE_CENTER);
-						
-					}
-					else {
-						loginPopup.markAsError(loginErrorText, styleErrorText);
-						loginPopup.setVisible(true);
-					}
-				}
-			}
-		});
-		return loginInnerButton;
-	}
-
+	
 	private ComponentContainer buildMainArea() {
 
 		VerticalLayout verticalLayout = new VerticalLayout();
@@ -582,40 +304,48 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 	private ComponentContainer buildNavigation(ComponentContainer target)  {
 		VerticalLayout parentLayout = new VerticalLayout();
+		parentLayout.setMargin(false);
+		parentLayout.setSpacing(false);
+		if (navigationIcon != null) {
+			parentLayout.addComponent(navigationIcon);
+			parentLayout.setComponentAlignment(navigationIcon,  Alignment.TOP_CENTER);
+		}
 		navigationLayout = new VerticalLayout();
-		navigationLayout.setImmediate(true);
-		setFirstComponent(navigationLayout);
+		navigationLayout.setSizeFull();
 		ViewDisplay viewDisplay = new Navigator.ComponentContainerViewDisplay(target);
 		navigator = new Navigator(UI.getCurrent(), viewDisplay);
 		parentLayout.setSizeFull();
+
 		parentLayout.addComponent(navigationLayout);
+
+		parentLayout.setExpandRatio(navigationLayout, 1.0f);
+
 		buildAccordion();
 		return parentLayout;
 	}
 
 	public void buildAccordion() {
 		scanPackage();
-		buildBreadCrum();
+		Map<RootView, List<NavButtonWithIcon>> listButtonByRootView = scanner.getNavButtonMap();
+		Accordion accordion = new Accordion();
 		
-		Map<String, TreeWithIcon> treeByAccordeonItem = scanner.getTreeMap();
-		accordion = new Accordion();
-		treeByAccordeonItem.forEach((name, treeWithIcon)-> {
-			Resource icon = EasyAppMainView.getIcon(treeWithIcon.getIcon());
-			accordion.addTab(treeWithIcon.getTree(), name, icon);
-		});
-
+		for (Map.Entry<RootView, List<NavButtonWithIcon>> entry : listButtonByRootView.entrySet()) {
+			RootView rootView = entry.getKey();
+			List<NavButtonWithIcon> listNavButtons = entry.getValue();
+			VerticalLayout vertLayout = new VerticalLayout();
+			vertLayout.setMargin(false);
+			vertLayout.setSpacing(false);
+			for (NavButtonWithIcon navButtonWithIcon : listNavButtons) {
+				navButtonWithIcon.setWidth("100%");
+				vertLayout.addComponent(navButtonWithIcon);
+			}
+			Tab tab = accordion.addTab(vertLayout, EasyAppMainView.getBundleValue(rootView.viewName()));
+			tab.setIcon(EasyAppMainView.getIcon(rootView.icon()));
+		}
 		accordion.setSizeFull();
+		accordion.setStyleName(getNavigatorStyleName());
 		navigationLayout.addComponent(accordion);
-	}
 
-	private void buildBreadCrum() {
-//		if (breadcrumb) {
-//			breadcrumbLabel = new Label("breadcrumb");
-//			if (breadcrumbLabelStyle != null) {
-//				breadcrumbLabel.setStyleName(breadcrumbLabelStyle);
-//			}
-//			scanner.getBreadCrumbLinksList(breadcrumbLabelStyle);
-//		}
 	}
 
 	/**
@@ -627,11 +357,11 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 	 */
 	public static Resource getIcon(String iconName) {
 		Resource icon = null;
-		Field fontAwasomeField;
+		Field vaadinIconField;
 		try {
-			fontAwasomeField = FontAwesome.class.getDeclaredField(iconName);
-			if (fontAwasomeField != null && !iconName.equals(RootView.NOT_SET)) {
-				icon = (Resource) fontAwasomeField.get(null);
+			vaadinIconField = VaadinIcons.class.getDeclaredField(iconName);
+			if (vaadinIconField != null && !iconName.equals(RootView.NOT_SET)) {
+				icon = (Resource) vaadinIconField.get(null);
 			}
 
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
@@ -646,18 +376,100 @@ public class EasyAppMainView extends VerticalSplitPanel  {
 
 		return icon;
 	}
-
-	public void setLoginTrigger(LoginTrigger loginTrigger) {
-		this.loginTrigger = loginTrigger;
-
+	
+	/**
+	 * Try to get the bundle value 
+	 * return value if not found
+	 */
+	public static String getBundleValue(String value) {
+		if (getBundle() != null && getBundle().containsKey(value)) {
+			return bundle.getString(value);
+		}
+		return value;
 	}
 
-	public void setLogoutTrigger(LogoutTrigger logoutTrigger) {
-		this.logoutTrigger = logoutTrigger;
+	public void setNavigationIcon(Image navigationIcon) {
+		this.navigationIcon = navigationIcon;
 	}
 
-	public void setToolbar(boolean toolBar) {
-		this.toolBarb = toolBar;
-		
+	public static void executeInTargetUI(Runnable runnable) {
+		if (targetUI != null) {
+			targetUI.access(runnable);
+		} 
 	}
+	
+	@Override
+	public ActionContainer buildActionContainer() {
+		return actionContainer;
+	}
+
+	public static void setSelectedNavigationButtonStyle(String selectedStyle) {
+		EasyAppMainView.selecteNavigationButtonStyle = selectedStyle;
+	}
+
+	public static String getSelectedNavigationButtonStyle() {
+		return selecteNavigationButtonStyle;
+	}
+
+	public static void setResourceBundle(ResourceBundle bundle) {
+		EasyAppMainView.bundle = bundle;
+	}
+
+	public static ResourceBundle getBundle() {
+		return bundle;
+	}
+
+	public static void setContentStyle(String contentStyle) {
+		EasyAppMainView.contentStyle = contentStyle;
+	}
+
+	public static String getContentStyle() {
+		return EasyAppMainView.contentStyle;
+	}
+
+	public static void setMenuCollapsable(boolean value) {
+		EasyAppMainView.menuCollapsable = value;
+	}
+
+	public static boolean isMenuCollapsable() {
+		return menuCollapsable;
+	}
+
+	public static void setActionContainerStyle(String style) {
+		EasyAppMainView.actionContainerStyle = style;
+	}
+
+	public static String getActionContainerStyle() {
+		return actionContainerStyle;
+	}
+
+	public static String getTopBarStyle() {
+		return topBarStyle;
+	}
+
+	public static void setTopBarStyle(String topBarStyle) {
+		EasyAppMainView.topBarStyle = topBarStyle;
+	}
+
+	public static void setApplicationTitle(String title) {
+		EasyAppMainView.applicationTitle = title;
+	}
+
+	public static String getApplicationTitle() {
+		return applicationTitle;
+	}
+	
+	private static String getContextualTextLabelStyle() {
+		// TODO Auto-generated method stub
+		return EasyAppMainView.contextualTextLabelStyle;
+	}
+
+	public static void setContextualTextLabelStyle(String contextualTextLabelStyle) {
+		EasyAppMainView.contextualTextLabelStyle = contextualTextLabelStyle;
+	}
+
+	@Override
+	public void enterInView(ViewChangeEvent event) {
+	}
+	
 }

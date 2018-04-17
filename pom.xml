@@ -1,9 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin</groupId>
 	<artifactId>easyApp</artifactId>
-	<version>0.1-SNAPSHOP</version>
+	<version>0.1</version>
 	<name>easyApp</name>
 	<organization>
 		<name>Guillaume Rousseau</name>
@@ -12,10 +13,10 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>7.7.7</vaadin.version>
+		<vaadin.version>8.3.1</vaadin.version>
 		<guava.version>13.0-rc1</guava.version>
 		<log4j.version>1.2.17</log4j.version>
-		<reflections.version>0.9.9-RC1</reflections.version>
+		<reflections.version>0.9.10</reflections.version>
 		<!-- ZIP Manifest fields -->
 		<Implementation-Version>1.0-BETA</Implementation-Version>
 		<License-title>Apache License 2.0</License-title>
@@ -48,13 +49,20 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+
+
+		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>activelink</artifactId>
 			<version>${activelink.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-server</artifactId>
+			<artifactId>vaadin-compatibility-server</artifactId>
 			<version>${vaadin.version}</version>
 		</dependency>
 		<dependency>
@@ -73,7 +81,29 @@
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>${reflections.version}</version>
+
+			<exclusions>
+				<exclusion>
+					<groupId>org.javassist</groupId>
+					<artifactId>javassist</artifactId>
+				</exclusion>
+			</exclusions>
+
 		</dependency>
+
+		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>cssinject</artifactId>
+			<version>2.0.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.20.0-GA</version>
+		</dependency>
+
+
 	</dependencies>
 	<repositories>
 		<repository>
@@ -83,6 +113,16 @@
 	</repositories>
 
 	<build>
+
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -109,7 +149,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Implementation-Version>${pom.version}</Implementation-Version>
+							<Implementation-Version>${project.version}</Implementation-Version>
 							<Implementation-Title>${project.name}</Implementation-Title>
 							<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
 							<License-title>${Vaadin-License-Title}</License-title>

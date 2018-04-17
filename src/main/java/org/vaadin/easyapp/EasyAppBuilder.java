@@ -1,25 +1,62 @@
 package org.vaadin.easyapp;
 
 import java.util.List;
+import java.util.ResourceBundle;
 
-import org.vaadin.easyapp.event.LoginTrigger;
-import org.vaadin.easyapp.event.LogoutTrigger;
-import org.vaadin.easyapp.event.SearchTrigger;
+import org.vaadin.easyapp.ui.ViewWithToolBar;
+import org.vaadin.easyapp.util.ActionContainer;
+import org.vaadin.easyapp.util.ActionContainer.InsertPosition;
+import org.vaadin.easyapp.util.ActionContainer.Position;
+import org.vaadin.easyapp.util.ButtonWithCheck;
 
-import com.vaadin.server.Resource;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
 
 public class EasyAppBuilder {
 	
 	public EasyAppBuilder(List<String> packages) {
-		mainView = new EasyAppMainView(packages);
+		EasyAppMainView easyAppMainView = new EasyAppMainView(packages);
+		this.mainView = easyAppMainView;
+		this.viewWithToolBar = new ViewWithToolBar();
 	}
 	
+	private ViewWithToolBar viewWithToolBar;
 	private EasyAppMainView mainView;
 	
-	public EasyAppMainView build() {
-		mainView.build();
+	public EasyAppMainView getMainView() {
 		return mainView;
+	}
+
+	public ViewWithToolBar build(UI targetUI) {
+		mainView.build(targetUI);
+		viewWithToolBar.setActionContainerStlyle(mainView.getTopBarStyle());
+		
+		
+		viewWithToolBar.buildComponents(mainView);
+		return viewWithToolBar;
+	}
+	
+	public EasyAppBuilder withActionContainer(ActionContainer actionContainer) {
+		if (mainView.isMenuCollapsable()) {
+			ButtonWithCheck buttonCollapse = new ButtonWithCheck(
+				null,
+				null,
+				VaadinIcons.MENU,
+				null,
+				() -> { return true;},
+				(event) -> {mainView.switchNavigatorPanelDisplay();}		
+			);
+			actionContainer.addButtonWithCheck(buttonCollapse, Position.LEFT, InsertPosition.BEFORE);
+		}
+		
+		if (mainView.getApplicationTitle() != null) {
+			actionContainer.addComponent(new Label(mainView.getApplicationTitle()), Position.LEFT, InsertPosition.AFTER);
+		}
+		
+		mainView.setActionContainer(actionContainer);
+		return this;
 	}
 	
 	public EasyAppBuilder withTopBarIcon(Image topBarIcon) {
@@ -27,27 +64,8 @@ public class EasyAppBuilder {
 		return this;
 	}
 	
-	public EasyAppBuilder withLogingCapabilities(LoginTrigger loginTrigger, LogoutTrigger logoutTrigger) {
-		mainView.setLogingCapabilities(true);
-		mainView.setLoginTrigger(loginTrigger);
-		mainView.setLogoutTrigger(logoutTrigger);
-		return this;
-	}
-	
-	public EasyAppBuilder withSearchCapabilities(SearchTrigger searchTrigger, Resource iconSearch) {
-		mainView.setSearchCapabilities(true);
-		mainView.setOnSearchListener(searchTrigger);
-		mainView.setIconSearch(iconSearch);
-		return this;
-	}
-	
-	public EasyAppBuilder withBreadcrumb() {
-		mainView.setBreadcrumb(true);
-		return this;
-	}
-	
-	public EasyAppBuilder withTopBarStyle(String style) {
-		mainView.setTopBarStyleName(style);
+	public EasyAppBuilder withNavigationIcon(Image topBarIcon) {
+		mainView.setNavigationIcon(topBarIcon);
 		return this;
 	}
 	
@@ -56,54 +74,50 @@ public class EasyAppBuilder {
 		return this;
 	}
 	
-	public EasyAppBuilder withMainViewStyle(String style) {
-		mainView.setMainViewStyle(style);
+	public EasyAppBuilder withNavigationButtonSelectedStyle(String selectedStyle) {
+		//mainView.setMainNavigationButtonStyle(mainStyle);
+		EasyAppMainView.setSelectedNavigationButtonStyle(selectedStyle);
 		return this;
 	}
 
-	public EasyAppBuilder withLogingUserText(String loggingUserText) {
-		mainView.setLoggingUserText(loggingUserText);
+	public EasyAppBuilder withRessourceBundle(ResourceBundle bundle) {
+		EasyAppMainView.setResourceBundle(bundle);
 		return this;
 	}
 
-	public EasyAppBuilder withLogingPassWordText(String loggingPassWordText) {
-		mainView.setLoggingPassWordText(loggingPassWordText);
-		return this;
-	}
-
-	public EasyAppBuilder withLoginCaption(String loginCaption) {
-		mainView.setLoginCaption(loginCaption);
-		return this;
-	}
-
-	public EasyAppBuilder withLoginTextStyle(String styleName) {
-		mainView.setUserLabelStyle(styleName);
-		return this;
-	}
-
-	public EasyAppBuilder withLoginErroText(String loginErrorText) {
-		mainView.setLoginErrorText(loginErrorText);
-		return this;
-	}
-
-	public EasyAppBuilder withLoginErrotLabelStyle(String styleErrorText) {
-		mainView.setStyleErrorText(styleErrorText);
-		return this;
-	}
-
-	public EasyAppBuilder withBreadcrumbStyle(String breadcrumbLabelStyle) {
-		mainView.setBreadcrumbLabelStyle(breadcrumbLabelStyle);
-		return this;
-	}
-
-	public EasyAppBuilder withButtonLinkStyleInBreadCrumb(String buttonStyle) {
-		mainView.setBreadcrumbLabelStyle(buttonStyle);
+	public EasyAppBuilder withContentStyle(String contentStyle) {
+		EasyAppMainView.setContentStyle(contentStyle);
 		return this;
 	}
 	
-	public EasyAppBuilder withToolBar() {
-		mainView.setToolbar(true);
+	public EasyAppBuilder withNavigatorSplitPosition(int splitPosition) {
+		EasyAppMainView.setNavigatorSplitPosition(splitPosition);
 		return this;
+	}
+
+	public EasyAppBuilder withMenuCollapsable() {
+		EasyAppMainView.setMenuCollapsable(true);
+		return this;
+	}
+
+	public EasyAppBuilder withActionContainerStyle(String style) {
+		EasyAppMainView.setActionContainerStyle(style);
+		return this;
+	}
+
+	public EasyAppBuilder withTopBarStyle(String style) {
+		EasyAppMainView.setTopBarStyle(style);
+		return this;
+	}
+
+	public EasyAppBuilder withApplicationTitle(String title) {
+		EasyAppMainView.setApplicationTitle(title);
+		return this;
+		
+	}
+
+	public void withContextualTextLabelStyle(String style) {
+		EasyAppMainView.setContextualTextLabelStyle(style);
 	}
 
 }

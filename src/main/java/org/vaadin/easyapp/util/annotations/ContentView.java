@@ -19,6 +19,11 @@ public @interface ContentView {
 	String viewName();
 	
 	/**
+	 * Resource bundle used for localization
+	 */
+	String bundle() default NOT_SET;
+	
+	/**
 	 * icon to display in the navigation panel could FontAwesom can be used 
 	 */
 	String icon() default NOT_SET;
@@ -36,10 +41,6 @@ public @interface ContentView {
 	 */
 	Class<?> rootViewParent() default EasyAppMainView.class;
 
-	/**
-	 * Parent view 
-	 */
-	Class<?> componentParent() default EasyAppMainView.class;
 }
 
 

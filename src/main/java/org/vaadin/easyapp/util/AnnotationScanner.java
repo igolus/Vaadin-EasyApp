@@ -2,30 +2,25 @@ package org.vaadin.easyapp.util;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
+
+import org.apache.log4j.Logger;
 import org.reflections.Reflections;
-import org.vaadin.easyapp.event.NavigationTrigger;
+import org.vaadin.easyapp.EasyAppMainView;
 import org.vaadin.easyapp.ui.DefaultView;
+import org.vaadin.easyapp.ui.ViewWithToolBar;
 import org.vaadin.easyapp.util.annotations.ContentView;
 import org.vaadin.easyapp.util.annotations.RootView;
 
-import com.vaadin.data.Item;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Tree;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
 
 /**
  * Class used to look in package to scan to build the navigation
@@ -34,31 +29,52 @@ import com.vaadin.ui.Label;
  */
 public class AnnotationScanner {
 
-	private Map<String, CustomTreeItem> customTreeItemByClassName = new LinkedHashMap<>();
 	private Navigator navigator;
-	private ArrayList<NavigationTrigger> navigationTriggers;
+	private EasyAppMainView easyAppMainView;
+	private NavButtonWithIcon selectedNav = null;
+	private static Logger logger = Logger.getLogger(AnnotationScanner.class);
 
-	public AnnotationScanner(Navigator navigator, List<String> packageToScan, ArrayList<NavigationTrigger> navigationTriggers, String buttonLinkStyle) 
+	public AnnotationScanner(Navigator navigator, List<String> packageToScan, EasyAppMainView easyAppMainView) 
 			throws InstantiationException, IllegalAccessException {
 		super();
-		this.navigationTriggers = navigationTriggers;
 		this.navigator = navigator;
-		this.buttonLinkStyle = buttonLinkStyle;
+		this.easyAppMainView = easyAppMainView;
 		init(packageToScan);
 	}
 
-	private Map<String, TreeWithIcon> treeMap = new LinkedHashMap<>();
-	private Map<String, View> viewMap = new LinkedHashMap();
-	private String buttonLinkStyle;
+	private Map<RootView, List<NavButtonWithIcon>> navButtonMap = new LinkedHashMap<>();
 
-	public Map<String, TreeWithIcon> getTreeMap() {
-		return treeMap;
+	public Map<RootView, List<NavButtonWithIcon>> getNavButtonMap() {
+		return navButtonMap;
 	}
 
+	private Map<String, NavButtonWithIcon> navButtonByViewName = new HashMap<>();
 
-	public Map<String, View> getViewMap() {
+	private Map<String, Component> viewMap = new LinkedHashMap<>();
+
+	public Map<String, Component> getViewMap() {
 		return viewMap;
 	}
+
+	public NavButtonWithIcon getSelectedNav() {
+		return selectedNav;
+	}
+
+	public void setSelectedNav(NavButtonWithIcon selectedNav) {
+		this.selectedNav = selectedNav;
+	}
+
+	public RootView getRootViewFromClass (Class<?> classTarget) 
+	{
+		Annotation[] annotations = classTarget.getDeclaredAnnotations();
+		for (Annotation annotation : annotations) {
+			if (annotation instanceof RootView) {
+				return (RootView) annotation;
+			}
+		}
+		return null;
+	}
+
 
 	public void init(List<String> packagesToScan)
 			throws InstantiationException, IllegalAccessException {
@@ -70,180 +86,120 @@ public class AnnotationScanner {
 			//first iteration to gather root Views
 			Set<Class<?>> annotatedRootView = reflections.getTypesAnnotatedWith(RootView.class);
 			for (Class<?> classTarget : annotatedRootView) {
-				Annotation[] annotations = classTarget.getDeclaredAnnotations();
-				for (Annotation annotation : annotations) {
-					if (annotation instanceof RootView) {
-						RootView rootView = (RootView) annotation;
-						rootViews.add(rootView);
-						classNameByRootView.put(rootView, classTarget.toString());
-					}
+				RootView rootView = getRootViewFromClass(classTarget);
+				if (rootView != null) {
+					rootViews.add(rootView);
+					classNameByRootView.put(rootView, classTarget.toString());
 				}
 			}
 
 			//sort it 
 			rootViews.sort((r1, r2) -> r1.sortingOrder() - r2.sortingOrder());
 
-			Map<String, TreeWithIcon> treeByClassName = new LinkedHashMap<>();
-			Map<String, String> rootViewNameByClassName = new LinkedHashMap<>();
-			
-			//build the treeMap
+
 			for (RootView rootView : rootViews) {
-				if (treeMap.get(rootView.viewName()) == null) {
-					Tree tree = new Tree();
-					TreeWithIcon treeWithIcon = new TreeWithIcon(tree, rootView.icon());
-					treeMap.put(rootView.viewName(), treeWithIcon);
-					treeByClassName.put(classNameByRootView.get(rootView), treeWithIcon);
-					rootViewNameByClassName.put(classNameByRootView.get(rootView), rootView.viewName());
-					tree.addItemClickListener(new ItemClickListener() {
-						@Override
-						public void itemClick(ItemClickEvent event) {
-							//navigate the the selected view
-							Class<?> targetClass = ((CustomTreeItem)event.getItemId()).getTargetClass();
-							navigator.navigateTo( targetClass.toString());
-							updateBreadCrumbLinksList();
-							for (NavigationTrigger navigationTrigger : navigationTriggers) {
-								navigationTrigger.enter(targetClass);
-							}
-						}
-					});
-				}
+				List<NavButtonWithIcon> listnavButtonMap = new LinkedList<>();
+				navButtonMap.put(rootView, listnavButtonMap);
 			}
 
-
-			List<ContentViewWithTargetClass> ContentViewWithTargetClasses = new ArrayList<>();
+			boolean hasHomeViewDefined = false;
 
 			Set<Class<?>> annotatedContentView = reflections.getTypesAnnotatedWith(ContentView.class);
+			
+			View viewToAdd = null;
+			
 			//first iteration to order items
 			for (Class<?> classTarget : annotatedContentView) {
-				//inteanciate the view
-				//Object view = classTarget.newInstance();
-				if (View.class.isAssignableFrom(classTarget)) {
+				if (EasyAppLayout.class.isAssignableFrom(classTarget) || View.class.isAssignableFrom(classTarget)) {
 					Annotation[] annotations = classTarget.getDeclaredAnnotations();
 					for (Annotation annotation : annotations) {
 						if (annotation instanceof ContentView) {
 							ContentView contentView = (ContentView) annotation;
-							ContentViewWithTargetClasses.add(new ContentViewWithTargetClass( classTarget, contentView));
+							Class<?> rootViewParent = contentView.rootViewParent();
+							RootView rootView = getRootViewFromClass(rootViewParent);
+
+							List<NavButtonWithIcon> listNavButton = navButtonMap.get(rootView);
+
+							boolean emptyConstructorExist = false;
+
+							try {
+								classTarget.getConstructor(null);
+								emptyConstructorExist = true;
+							} catch (NoSuchMethodException | SecurityException e1) {
+								logger.warn("Please define at least one empty constructor for you view: " + classTarget.toString());
+							}
+
+							if (listNavButton!=null && emptyConstructorExist) 
+							{
+								Object view = classTarget.newInstance();;
+								if (EasyAppLayout.class.isAssignableFrom(classTarget)) {
+									ViewWithToolBar viewWithToolBar = new ViewWithToolBar();
+									viewWithToolBar.setActionContainerStlyle(EasyAppMainView.getActionContainerStyle());
+									viewWithToolBar.setContentStyle(EasyAppMainView.getContentStyle());
+									viewWithToolBar.buildComponents((EasyAppLayout) view);
+									viewToAdd = viewWithToolBar;
+								}
+								else if(View.class.isAssignableFrom(classTarget)) {
+									viewToAdd = (View) view;
+								}
+								NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView,  easyAppMainView, navigator, this);
+								navButtonByViewName.put(classTarget.toString(), navButton);
+								listNavButton.add(navButton);
+
+								navigator.addView(classTarget.toString(), viewToAdd);
+								
+								if (contentView.homeView()) {
+									navigator.addView("" , viewToAdd);
+									if (hasHomeViewDefined && contentView.homeView()) {
+										logger.warn("You did defined several home view ! " + classTarget.toString() + " will be used as default view ");
+									}
+									hasHomeViewDefined = true;
+								}
+							}
 						}
 					}
 				}
-			}
-
-			//sort it
-			ContentViewWithTargetClasses.sort((p1, p2) -> p1.getContentView().sortingOrder() - p2.getContentView().sortingOrder());
-
-			customTreeItemByClassName = new HashMap<>();
-
-			boolean hasHomeView = false;
-			//create the view with order
-			for (ContentViewWithTargetClass contentViewWithTargetClass : ContentViewWithTargetClasses) {
-				ContentView contentView = contentViewWithTargetClass.getContentView();
-				Class<?> targetClass = contentViewWithTargetClass.getTargetClass();
-
-				Object view = targetClass.newInstance();
-
-				if (contentView.homeView()) {
-					navigator.addView("" , (View) view);
-					hasHomeView = true;
-				}
-
-				navigator.addView(targetClass.toString(), (View) view);
-				TreeWithIcon tree = treeByClassName.get(contentView.rootViewParent().toString());
-				String rootViewName = rootViewNameByClassName.get(contentView.rootViewParent().toString());
-				if (tree != null) {
-
-					CustomTreeItem customTreeItem = new CustomTreeItem(contentView.viewName(), targetClass, rootViewName, 
-							contentView.rootViewParent().toString());
-					customTreeItemByClassName.put(targetClass.toString(), customTreeItem);
-
-					Item treeItem = tree.getTree().addItem(customTreeItem);
-					tree.getTree().setChildrenAllowed(customTreeItem, false);
-
-					Resource icon = org.vaadin.easyapp.EasyAppMainView.getIcon(contentView.icon());
-					if (icon != null) {
-
-						tree.getTree().addContainerProperty("icon", Resource.class, null);
-						tree.getTree().addContainerProperty("caption", String.class, null);
-
-						tree.getTree().setItemIconPropertyId("icon");
-						tree.getTree().setItemCaptionPropertyId("caption");
-
-						treeItem.getItemProperty("icon").setValue(icon);
-						treeItem.getItemProperty("caption").setValue(contentView.viewName());
-					}
-
-					if (customTreeItemByClassName.get(contentView.componentParent().toString()) != null) {
-						CustomTreeItem parentCustomTreeItem = customTreeItemByClassName.get(contentView.componentParent().toString());
-						tree.getTree().setChildrenAllowed(parentCustomTreeItem, true);
-						tree.getTree().setParent(customTreeItem, parentCustomTreeItem);
-						customTreeItem.setParent(parentCustomTreeItem);
-					}
-					viewMap.put(targetClass.toString(), (View) view);
+				else {
+					logger.warn("Your component should inherit from View or EasyAppLayout: " + classTarget.toString());
 				}
 			}
+			
+			//if no view defined; define the last one
+			if (!hasHomeViewDefined && viewToAdd!= null) {
+				navigator.addView("" , viewToAdd);
+			}
 
-			if (!hasHomeView) {
-				navigator.addView("" , new DefaultView());
-				hasHomeView = true;
+			for (Map.Entry<RootView, List<NavButtonWithIcon>> entry : navButtonMap.entrySet())
+			{
+				//sort nav button 
+				entry.getValue().sort((p1, p2) -> p1.getContentView().sortingOrder() - p2.getContentView().sortingOrder());
 			}
 
 		}
 	}
-	
+
+
+	public static String getBundleValue(String bundleName, String bundleValue) {
+		if (bundleName != null && !bundleName.equals(ContentView.NOT_SET) && 
+				ResourceBundle.getBundle(bundleName) != null &&
+				ResourceBundle.getBundle(bundleName).containsKey(bundleValue)) {
+			return ResourceBundle.getBundle(bundleName).getString(bundleValue);
+		}
+		return bundleValue;
+	}
+
 	/**
 	 * Navigate to a view
 	 * @param clazz
 	 */
 	public void navigateTo(Class<?> clazz) {
+		if (navButtonByViewName.containsKey(clazz.toString())) {
+			NavButtonWithIcon selectedNavButtonWithIcon = navButtonByViewName.get(clazz.toString());
+			selectedNavButtonWithIcon.setStyleSelected();
+			getSelectedNav().setStyleNav();
+			setSelectedNav(selectedNavButtonWithIcon);
+		}
 		navigator.navigateTo(clazz.toString());
 	}
-	
-	/**
-	 * Build the list of links
-	 * @param style
-	 * @return
-	 */
-	public void updateBreadCrumbLinksList() {
-		breadCrumbLinkList.clear();
-		View currentView = navigator.getCurrentView();
-		CustomTreeItem pathCustomTreeItem = customTreeItemByClassName.get(currentView.getClass().toString());
-		
-		breadCrumbLinkList.add(buildLinkButton(pathCustomTreeItem));
-		
-		while (pathCustomTreeItem.getParent() != null) {
-			pathCustomTreeItem = pathCustomTreeItem.getParent();
-			breadCrumbLinkList.add(buildLinkButton(pathCustomTreeItem));
-		}
-		
-		Label rootLabel = new Label(pathCustomTreeItem.getRootViewName());
-		breadCrumbLinkList.add(rootLabel);
-		
-		//invert the order
-		Collections.reverse(breadCrumbLinkList);
-	}
 
-
-	private Button buildLinkButton(CustomTreeItem customTreeItem) {
-		Button link = new Button(customTreeItem.toString());
-		if (buttonLinkStyle != null) {
-			link.setStyleName(buttonLinkStyle);
-		}
-		link.addClickListener(new ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
-				treeMap.get(customTreeItem.getRootViewName()).getTree().select(customTreeItem);
-			}
-		});
-		return link;
-	}
-	
-	
-	
-	private List<Component> breadCrumbLinkList = new ArrayList<>();
-
-	public List<Component> getBreadCrumbLinkList() {
-		return breadCrumbLinkList;
-	} 
-	
-	
 }
