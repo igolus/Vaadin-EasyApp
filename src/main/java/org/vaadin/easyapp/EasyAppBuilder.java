@@ -41,10 +41,13 @@ public class EasyAppBuilder {
 	public EasyAppBuilder withActionContainer(ActionContainer actionContainer) {
 		if (mainView.isMenuCollapsable()) {
 			ButtonWithCheck buttonCollapse = new ButtonWithCheck(
+				null,
+				null,
+				VaadinIcons.MENU,
+				null,
 				() -> { return true;},
 				(event) -> {mainView.switchNavigatorPanelDisplay();}		
 			);
-			buttonCollapse.setIcon(VaadinIcons.MENU);
 			actionContainer.addButtonWithCheck(buttonCollapse, Position.LEFT, InsertPosition.BEFORE);
 		}
 		

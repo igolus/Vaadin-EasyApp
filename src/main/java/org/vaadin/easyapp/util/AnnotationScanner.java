@@ -43,19 +43,19 @@ public class AnnotationScanner {
 	}
 
 	private Map<RootView, List<NavButtonWithIcon>> navButtonMap = new LinkedHashMap<>();
-	
+
 	public Map<RootView, List<NavButtonWithIcon>> getNavButtonMap() {
 		return navButtonMap;
 	}
 
 	private Map<String, NavButtonWithIcon> navButtonByViewName = new HashMap<>();
-	
+
 	private Map<String, Component> viewMap = new LinkedHashMap<>();
 
 	public Map<String, Component> getViewMap() {
 		return viewMap;
 	}
-	
+
 	public NavButtonWithIcon getSelectedNav() {
 		return selectedNav;
 	}
@@ -63,7 +63,7 @@ public class AnnotationScanner {
 	public void setSelectedNav(NavButtonWithIcon selectedNav) {
 		this.selectedNav = selectedNav;
 	}
-	
+
 	public RootView getRootViewFromClass (Class<?> classTarget) 
 	{
 		Annotation[] annotations = classTarget.getDeclaredAnnotations();
@@ -74,7 +74,7 @@ public class AnnotationScanner {
 		}
 		return null;
 	}
-	
+
 
 	public void init(List<String> packagesToScan)
 			throws InstantiationException, IllegalAccessException {
@@ -96,17 +96,18 @@ public class AnnotationScanner {
 			//sort it 
 			rootViews.sort((r1, r2) -> r1.sortingOrder() - r2.sortingOrder());
 
-		
+
 			for (RootView rootView : rootViews) {
-//				if (treeMap.get(rootView.viewName()) == null) {
-					List<NavButtonWithIcon> listnavButtonMap = new LinkedList<>();
-					navButtonMap.put(rootView, listnavButtonMap);
-//				}
+				List<NavButtonWithIcon> listnavButtonMap = new LinkedList<>();
+				navButtonMap.put(rootView, listnavButtonMap);
 			}
-			
+
 			boolean hasHomeViewDefined = false;
-			
+
 			Set<Class<?>> annotatedContentView = reflections.getTypesAnnotatedWith(ContentView.class);
+			
+			View viewToAdd = null;
+			
 			//first iteration to order items
 			for (Class<?> classTarget : annotatedContentView) {
 				if (EasyAppLayout.class.isAssignableFrom(classTarget) || View.class.isAssignableFrom(classTarget)) {
@@ -116,22 +117,21 @@ public class AnnotationScanner {
 							ContentView contentView = (ContentView) annotation;
 							Class<?> rootViewParent = contentView.rootViewParent();
 							RootView rootView = getRootViewFromClass(rootViewParent);
-							
+
 							List<NavButtonWithIcon> listNavButton = navButtonMap.get(rootView);
-							
+
 							boolean emptyConstructorExist = false;
-							
+
 							try {
 								classTarget.getConstructor(null);
 								emptyConstructorExist = true;
 							} catch (NoSuchMethodException | SecurityException e1) {
 								logger.warn("Please define at least one empty constructor for you view: " + classTarget.toString());
 							}
-							
+
 							if (listNavButton!=null && emptyConstructorExist) 
 							{
 								Object view = classTarget.newInstance();;
-								View viewToAdd = null;
 								if (EasyAppLayout.class.isAssignableFrom(classTarget)) {
 									ViewWithToolBar viewWithToolBar = new ViewWithToolBar();
 									viewWithToolBar.setActionContainerStlyle(EasyAppMainView.getActionContainerStyle());
@@ -145,7 +145,7 @@ public class AnnotationScanner {
 								NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView,  easyAppMainView, navigator, this);
 								navButtonByViewName.put(classTarget.toString(), navButton);
 								listNavButton.add(navButton);
-								
+
 								navigator.addView(classTarget.toString(), viewToAdd);
 								
 								if (contentView.homeView()) {
@@ -164,6 +164,11 @@ public class AnnotationScanner {
 				}
 			}
 			
+			//if no view defined; define the last one
+			if (!hasHomeViewDefined && viewToAdd!= null) {
+				navigator.addView("" , viewToAdd);
+			}
+
 			for (Map.Entry<RootView, List<NavButtonWithIcon>> entry : navButtonMap.entrySet())
 			{
 				//sort nav button 
@@ -182,7 +187,7 @@ public class AnnotationScanner {
 		}
 		return bundleValue;
 	}
-	
+
 	/**
 	 * Navigate to a view
 	 * @param clazz
@@ -196,5 +201,5 @@ public class AnnotationScanner {
 		}
 		navigator.navigateTo(clazz.toString());
 	}
-	
+
 }

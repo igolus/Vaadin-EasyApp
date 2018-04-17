@@ -39,7 +39,7 @@ public class ActionContainer {
 	public void addComponent(Component component, Position position, InsertPosition insertPosition) {
 		if (position == Position.LEFT) {
 			if (insertPosition == InsertPosition.BEFORE) {
-				leftListComponent = insertBefore(component);
+				leftListComponent = insertBefore(component, leftListComponent);
 			}
 			else if (insertPosition == null || insertPosition == InsertPosition.AFTER) {
 				leftListComponent.add(component);
@@ -47,7 +47,7 @@ public class ActionContainer {
 		}
 		else if (position == Position.RIGHT) {
 			if (insertPosition == InsertPosition.BEFORE) {
-				rightListComponent = insertBefore(component);
+				rightListComponent = insertBefore(component, rightListComponent);
 			}
 			else if (insertPosition == null || insertPosition == InsertPosition.AFTER) {
 				rightListComponent.add(component);
@@ -58,12 +58,13 @@ public class ActionContainer {
 	/**
 	 * Recopy the list
 	 * @param component
+	 * @param listComonent 
 	 * @return
 	 */
-	private List<Component> insertBefore(Component component) {
+	private List<Component> insertBefore(Component component, List<Component> listComponent) {
 		List<Component> tempList = new ArrayList<>();
 		tempList.add(component);
-		for (Component compnent : leftListComponent) {
+		for (Component compnent : listComponent) {
 			tempList.add(compnent);
 		}
 		return tempList;

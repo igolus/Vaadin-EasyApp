@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin</groupId>
 	<artifactId>easyApp</artifactId>
-	<version>1.0-beta</version>
+	<version>1.1-SNAPSHOT</version>
 	<name>easyApp</name>
 	<organization>
 		<name>Guillaume Rousseau</name>
