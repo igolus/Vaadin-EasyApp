@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.vaadin</groupId>
+	<groupId>com.jenetware</groupId>
 	<artifactId>easyApp</artifactId>
 	<version>0.1</version>
 	<name>easyApp</name>
@@ -18,10 +18,10 @@
 		<log4j.version>1.2.17</log4j.version>
 		<reflections.version>0.9.10</reflections.version>
 		<!-- ZIP Manifest fields -->
-		<Implementation-Version>1.0-BETA</Implementation-Version>
+		<Implementation-Version>${project.version}</Implementation-Version>
 		<License-title>Apache License 2.0</License-title>
 		<!-- Must not change this because of the Directory -->
-		<Implementation-Title>Vaadin_EasyApp</Implementation-Title>
+		<Implementation-Title>easyApp</Implementation-Title>
 		<Implementation-Vendor>Guillaume Rousseau</Implementation-Vendor>
 		<Vaadin-License-Title>Apache License 2.0</Vaadin-License-Title>
 		<Vaadin-Addon>${project.artifactId}-${project.version}.jar</Vaadin-Addon>
@@ -175,12 +175,76 @@
 					</execution>
 				</executions>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<appendAssemblyId>false</appendAssemblyId>
+					<descriptors>
+						<descriptor>assembly/assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<phase>install</phase>
+					</execution>
+				</executions>
+			</plugin>
+			
+			
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<!-- Vaadin pre-release repositories -->
+			<id>vaadin-prerelease</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
 
-	<url>https://github.com/${github.account}/${github.project}</url>
-	<description>EasyApp builds a ready to use applicattion container.
+			<repositories>
+				<repository>
+					<id>vaadin-prereleases</id>
+					<url>http://maven.vaadin.com/vaadin-prereleases</url>
+				</repository>
+				<repository>
+					<id>vaadin-snapshots</id>
+					<url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>vaadin-prereleases</id>
+					<url>http://maven.vaadin.com/vaadin-prereleases</url>
+				</pluginRepository>
+				<pluginRepository>
+					<id>vaadin-snapshots</id>
+					<url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+	</profiles>
+
+
+	<url>https://github.com/igolus/Vaadin-EasyApp</url>
+	<description>EasyApp builds a ready to use application container.
 
 - Create you views in a dedicated package
 - Decorate it with annotation.
