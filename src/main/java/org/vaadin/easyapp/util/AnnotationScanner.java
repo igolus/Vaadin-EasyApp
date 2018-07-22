@@ -131,7 +131,8 @@ public class AnnotationScanner {
 
 							if (listNavButton!=null && emptyConstructorExist) 
 							{
-								Object view = classTarget.newInstance();;
+								Object view = classTarget.newInstance();
+								viewMap.put(view.getClass().toString(), (Component) view);
 								if (EasyAppLayout.class.isAssignableFrom(classTarget)) {
 									ViewWithToolBar viewWithToolBar = new ViewWithToolBar();
 									viewWithToolBar.setActionContainerStlyle(EasyAppMainView.getActionContainerStyle());
@@ -141,6 +142,7 @@ public class AnnotationScanner {
 								}
 								else if(View.class.isAssignableFrom(classTarget)) {
 									viewToAdd = (View) view;
+									
 								}
 								NavButtonWithIcon navButton = new NavButtonWithIcon(classTarget, contentView,  easyAppMainView, navigator, this);
 								navButtonByViewName.put(classTarget.toString(), navButton);
@@ -180,7 +182,7 @@ public class AnnotationScanner {
 
 
 	public static String getBundleValue(String bundleName, String bundleValue) {
-		if (bundleName != null && !bundleName.equals(ContentView.NOT_SET) && 
+		if (bundleValue != null && bundleName != null && !bundleName.equals(ContentView.NOT_SET) && 
 				ResourceBundle.getBundle(bundleName) != null &&
 				ResourceBundle.getBundle(bundleName).containsKey(bundleValue)) {
 			return ResourceBundle.getBundle(bundleName).getString(bundleValue);
@@ -196,8 +198,11 @@ public class AnnotationScanner {
 		if (navButtonByViewName.containsKey(clazz.toString())) {
 			NavButtonWithIcon selectedNavButtonWithIcon = navButtonByViewName.get(clazz.toString());
 			selectedNavButtonWithIcon.setStyleSelected();
-			getSelectedNav().setStyleNav();
-			setSelectedNav(selectedNavButtonWithIcon);
+			NavButtonWithIcon oldSelectedNav = getSelectedNav();
+			if (oldSelectedNav != null) {
+				oldSelectedNav.setStyleNav();
+			}
+			selectedNavButtonWithIcon.setStyleSelected();
 		}
 		navigator.navigateTo(clazz.toString());
 	}
