@@ -16,6 +16,8 @@ import org.vaadin.easyapp.util.annotations.RootView;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.server.Resource;
@@ -237,7 +239,13 @@ public class EasyAppMainView extends EasyAppLayout  {
 	}
 	
 	private Label contextualTextLabel = null;
+
+	private View currentView;
 	
+	public View getCurrentView() {
+		return currentView;
+	}
+
 	public void setContextualText (String text) {
 		ViewWithToolBar viewWithToolBar = getViewWithToolBarSource();
 		if (viewWithToolBar != null && viewWithToolBar.getLeftLayout() != null) {
@@ -314,6 +322,7 @@ public class EasyAppMainView extends EasyAppLayout  {
 		navigationLayout.setSizeFull();
 		ViewDisplay viewDisplay = new Navigator.ComponentContainerViewDisplay(target);
 		navigator = new Navigator(UI.getCurrent(), viewDisplay);
+		navigator.addViewChangeListener(this::viewChanged);
 		parentLayout.setSizeFull();
 
 		parentLayout.addComponent(navigationLayout);
@@ -323,6 +332,13 @@ public class EasyAppMainView extends EasyAppLayout  {
 		buildAccordion();
 		return parentLayout;
 	}
+	
+	private boolean viewChanged(ViewChangeEvent event) {
+		this.currentView = event.getNewView();
+		return true;
+	}
+	
+	
 
 	public void buildAccordion() {
 		scanPackage();

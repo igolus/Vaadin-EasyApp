@@ -49,6 +49,7 @@ public class AnnotationScanner {
 	}
 
 	private Map<String, NavButtonWithIcon> navButtonByViewName = new HashMap<>();
+	private static Map<EasyAppLayout, ViewWithToolBar> viewWithToolBarByLayout = new HashMap<>();
 
 	private Map<String, Component> viewMap = new LinkedHashMap<>();
 
@@ -73,6 +74,10 @@ public class AnnotationScanner {
 			}
 		}
 		return null;
+	}
+	
+	public static ViewWithToolBar getViewWithToolBarFromLayout(EasyAppLayout layout) {
+		return viewWithToolBarByLayout.get(layout);
 	}
 
 
@@ -135,9 +140,11 @@ public class AnnotationScanner {
 								viewMap.put(view.getClass().toString(), (Component) view);
 								if (EasyAppLayout.class.isAssignableFrom(classTarget)) {
 									ViewWithToolBar viewWithToolBar = new ViewWithToolBar();
+									viewWithToolBar.setSizeFull();
 									viewWithToolBar.setActionContainerStlyle(EasyAppMainView.getActionContainerStyle());
 									viewWithToolBar.setContentStyle(EasyAppMainView.getContentStyle());
 									viewWithToolBar.buildComponents((EasyAppLayout) view);
+									viewWithToolBarByLayout.put((EasyAppLayout) view, viewWithToolBar);
 									viewToAdd = viewWithToolBar;
 								}
 								else if(View.class.isAssignableFrom(classTarget)) {

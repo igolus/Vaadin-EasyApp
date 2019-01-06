@@ -18,6 +18,7 @@ public class ActionContainerBuilder {
 	
 	private ActionContainer actionContainer = new ActionContainer();
 	private String bundleName;
+	private Button searchButton;
 	
 	public ActionContainerBuilder(String bundleName) {
 		this.bundleName = bundleName;
@@ -33,6 +34,12 @@ public class ActionContainerBuilder {
 	
 	public ActionContainerBuilder addComponent(Component component, Position position, InsertPosition insertPosition) {
 		actionContainer.addComponent(component, position, insertPosition);
+		return this;
+	}
+	
+	
+	public ActionContainerBuilder withSingleComponent(Component singleComponent) {
+		actionContainer.setSingleComponent(singleComponent);
 		return this;
 	}
 	
@@ -74,19 +81,14 @@ public class ActionContainerBuilder {
 	public ActionContainerBuilder addSearch(SearchTrigger searchTrigger, Position position, InsertPosition insertPosition) {
 		
 		HorizontalLayout searchLayout = new HorizontalLayout();
-		//searchLayout.setStyleName(actionContainer.getStyleName());
 		TextField search = new TextField();
 		search.setHeight("100%");
-		//search.setStyleName(actionContainer.getStyleName());
 		searchLayout.addComponent(search);
-		Button searchButton = new Button();
-		//searchButton.setStyleName(actionContainer.getStyleName());
+		searchButton = new Button();
 		searchButton.setHeight("100%");
 		searchLayout.addComponent(searchButton);
 		searchButton.setIcon(VaadinIcons.SEARCH);
-		//searchButton.setStyleName(actionContainer.getStyleName());
 		searchButton.addClickListener(event -> searchTrigger.searchTriggered(search.getValue()));
-		
 		actionContainer.addComponent(searchLayout, position, insertPosition);
 		return this;
 	}
@@ -94,7 +96,8 @@ public class ActionContainerBuilder {
 	public ActionContainer build() {
 		return actionContainer;
 	}
-
-
 	
+	public void enableSearchButton(boolean value) {
+		searchButton.setEnabled(value);
+	}
 }

@@ -13,6 +13,12 @@ public @interface RootView {
 	 * define the how the view should be displayed
 	 */
 	String viewName();
+	
+	/**
+	 * Resource bundle used for localization
+	 */
+	String bundle() default NOT_SET;
+	
 	/**
 	 * icon to display in the navigation panel could FontAwesom can be used 
 	 */

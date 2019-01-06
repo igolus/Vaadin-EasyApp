@@ -27,6 +27,7 @@ public class ActionContainer {
 	private List<Component> rightListComponent = new ArrayList<>();
 	
 	private SearchTrigger searchTrigger;
+	private Component singleComponent;
 
 	public SearchTrigger getSearchTrigger() {
 		return searchTrigger;
@@ -105,4 +106,14 @@ public class ActionContainer {
 		}
 		return ret;
 	}
+
+	public Component getSingleComponent() {
+		return this.singleComponent;
+	}
+
+	public void setSingleComponent(Component singleComponent) {
+		this.singleComponent = singleComponent;
+	}
+	
+	
 }

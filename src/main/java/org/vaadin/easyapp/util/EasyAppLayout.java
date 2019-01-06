@@ -43,7 +43,7 @@ public abstract class EasyAppLayout extends VerticalLayout {
 	}
 	
 	public void enterInView(ViewChangeEvent event) {
-		
+
 	}
 
 
@@ -68,9 +68,5 @@ public abstract class EasyAppLayout extends VerticalLayout {
 			}
 		}
 	}
-	
-	
-
-
 
 }

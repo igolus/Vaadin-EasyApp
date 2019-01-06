@@ -32,8 +32,6 @@ public class EasyAppBuilder {
 	public ViewWithToolBar build(UI targetUI) {
 		mainView.build(targetUI);
 		viewWithToolBar.setActionContainerStlyle(mainView.getTopBarStyle());
-		
-		
 		viewWithToolBar.buildComponents(mainView);
 		return viewWithToolBar;
 	}
