@@ -5,6 +5,7 @@ import org.vaadin.easyapp.event.SearchTrigger;
 import org.vaadin.easyapp.util.ActionContainer.InsertPosition;
 import org.vaadin.easyapp.util.ActionContainer.Position;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
@@ -88,8 +89,15 @@ public class ActionContainerBuilder {
 		searchButton.setHeight("100%");
 		searchLayout.addComponent(searchButton);
 		searchButton.setIcon(VaadinIcons.SEARCH);
+		
 		searchButton.addClickListener(event -> searchTrigger.searchTriggered(search.getValue()));
+		searchButton.setClickShortcut(KeyCode.ENTER);
 		actionContainer.addComponent(searchLayout, position, insertPosition);
+		
+		
+		search.addFocusListener(e -> searchButton.setClickShortcut(KeyCode.ENTER));
+		search.addBlurListener(e -> searchButton.removeClickShortcut());
+		
 		return this;
 	}
 	
